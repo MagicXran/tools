@@ -290,6 +290,10 @@
                 <span class="result-label">Ac3 温度：</span>
                 <span class="result-value" id="basicAc3"></span>
               </div>
+              <div class="result-item">
+                <span class="result-label">推荐淬火温度：</span>
+                <span class="result-value" id="basicQuenchRange"></span>
+              </div>
             </div>
           </div>
         </div>
@@ -455,6 +459,7 @@
         // 更新显示结果
         document.getElementById('basicAc1').textContent = Ac1 + '°C';
         document.getElementById('basicAc3').textContent = Math.round(Ac3) + '°C';
+        document.getElementById('basicQuenchRange').textContent = tempRange + '°C';
       }
 
       function calculateAdvanced() {

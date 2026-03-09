@@ -1,6 +1,6 @@
 // 密度影响系数表 (g/cm³ per 1%)
 const kiValues = {
-    cr: 0.03,
+    cr: -0.03,
     ni: 0.012,
     mo: 0.015,
     mn: 0.005,

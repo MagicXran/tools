@@ -111,7 +111,7 @@ const steelConfigs = {
       { name: 's', label: 's(mm)', type: 'number' },
       { name: 'L', label: 'L(mm)', type: 'number' },
     ],
-    volumeFormula: (s, L) => Math.pow(s, 2) * L * 8.28,
+    volumeFormula: (s, L) => Math.pow(s, 2) * L * 0.828,
     weightInputs: [{ name: 'rho', label: '密度ρ(g/cm³)', type: 'number' }],
     weightFormula: (V, rho) => (V * rho) / 1000,
   },

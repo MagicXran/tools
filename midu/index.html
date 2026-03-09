@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>密度计算</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <div class="icon">●</div>
+        <h1>密度计算</h1>
+      </div>
+
+      <div class="input-section">
+        <h2>输入</h2>
+        <div class="element-grid">
+          <div class="element-row">
+            <label>元素</label>
+            <label>含量</label>
+          </div>
+          <div class="element-row">
+            <span>Cr</span>
+            <input type="number" id="cr" value="20" min="0" max="100" />
+            <span>%</span>
+          </div>
+          <div class="element-row">
+            <span>Ni</span>
+            <input type="number" id="ni" value="20" min="0" max="100" />
+            <span>%</span>
+          </div>
+          <div class="element-row">
+            <span>Mo</span>
+            <input type="number" id="mo" value="20" min="0" max="100" />
+            <span>%</span>
+          </div>
+          <div class="element-row">
+            <span>Mn</span>
+            <input type="number" id="mn" value="20" min="0" max="100" />
+            <span>%</span>
+          </div>
+          <div class="element-row">
+            <span>W</span>
+            <input type="number" id="w" value="20" min="0" max="100" />
+            <span>%</span>
+          </div>
+          <div class="element-row">
+            <span>Al</span>
+            <input type="number" id="al" value="20" min="0" max="100" />
+            <span>%</span>
+          </div>
+          <div class="element-row">
+            <span>Si</span>
+            <input type="number" id="si" value="20" min="0" max="100" />
+            <span>%</span>
+          </div>
+          <div class="element-row">
+            <span>C</span>
+            <input type="number" id="c" value="20" min="0" max="100" />
+            <span>%</span>
+          </div>
+        </div>
+
+        <div class="temperature-row">
+          <span>温度</span>
+          <input type="number" id="temperature" value="32" min="-273" max="2000" />
+          <span>°C</span>
+        </div>
+      </div>
+
+      <div class="output-section">
+        <h2>输出</h2>
+        <div class="result" id="result">1472</div>
+      </div>
+
+      <button class="calculate-btn" onclick="calculate()">开始计算</button>
+
+      <div class="tips-section">
+        <div class="tips-header">
+          <span>提示</span>
+          <span class="ki-link" onclick="showKiTable()">查看KI推荐表</span>
+        </div>
+        <table class="tips-table">
+          <tr>
+            <th>条件</th>
+            <th>密度</th>
+            <th>备注</th>
+          </tr>
+          <tr>
+            <td>常温适用密度</td>
+            <td>常温适用密度 ρ=7.85 g/cm3</td>
+            <td>-</td>
+          </tr>
+          <tr>
+            <td>合金公式</td>
+            <td>ρ=7.85+Σ(ki×Ci)</td>
+            <td>ki修正系数，Ci元素含量</td>
+          </tr>
+          <tr>
+            <td>高温公式</td>
+            <td>ρ=ρ20/[1+3α(T-20)]</td>
+            <td>-</td>
+          </tr>
+        </table>
+      </div>
+    </div>
+
+    <!-- KI推荐表弹窗 -->
+    <div class="modal" id="kiModal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3>KI推荐表</h3>
+          <span class="close" onclick="closeKiTable()">&times;</span>
+        </div>
+        <table class="ki-table">
+          <tr>
+            <th>合金元素</th>
+            <th>密度影响系数 ki (g/cm³ per 1%)</th>
+          </tr>
+          <tr>
+            <td>Cr</td>
+            <td>0.03</td>
+          </tr>
+          <tr>
+            <td>Ni</td>
+            <td>0.012</td>
+          </tr>
+          <tr>
+            <td>Mo</td>
+            <td>0.015</td>
+          </tr>
+          <tr>
+            <td>Mn</td>
+            <td>0.005</td>
+          </tr>
+          <tr>
+            <td>W</td>
+            <td>0.1</td>
+          </tr>
+          <tr>
+            <td>Al</td>
+            <td>-0.05</td>
+          </tr>
+          <tr>
+            <td>Si</td>
+            <td>-0.008</td>
+          </tr>
+          <tr>
+            <td>C</td>
+            <td>-0.06</td>
+          </tr>
+        </table>
+      </div>
+    </div>
+
+    <script src="script.js"></script>
+  </body>
+</html>

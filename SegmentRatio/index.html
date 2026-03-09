@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>锻比计算</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      margin: 0;
+      background-color: #f0f2f5;
+      padding: 20px;
+    }
+
+    .container {
+      background-color: #fff;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      width: 100%;
+      max-width: 1000px;
+    }
+
+    h2 {
+      text-align: center;
+      color: #333;
+      margin-bottom: 30px;
+      font-size: 28px;
+    }
+
+    .form-group {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 25px;
+      align-items: center;
+    }
+
+    select {
+      padding: 14px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      width: 280px;
+      font-size: 16px;
+      background-color: #f8f9fa;
+    }
+
+    /* 主输入输出容器 */
+    .main-content {
+      display: flex;
+      justify-content: space-between;
+      gap: 30px;
+      margin-top: 20px;
+    }
+
+    /* 左侧输入区域 */
+    .input-section {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+
+    /* 输入框样式 - 高度50px，纵向排列 */
+    .input-section input {
+      height: 50px;
+      padding: 0 15px;
+      border-radius: 8px;
+      border: 1px solid #A7C4FF;
+      font-size: 18px;
+      box-sizing: border-box;
+    }
+
+    /* 右侧输出区域 - 高度与左侧输入框总高相同 */
+    .output-section {
+      flex: 1;
+    }
+
+    .output-section textarea {
+      width: 100%;
+      min-height: 100%;
+      border-radius: 8px;
+      border: 1px solid #A7C4FF;
+      font-size: 18px;
+      padding: 15px;
+      box-sizing: border-box;
+      resize: none;
+      background-color: #f9f9f9;
+    }
+
+    /* 转换按钮样式 */
+    #convertBtn {
+      width: 30%;
+      padding: 18px;
+      background-color: #007bff;
+      color: #fff;
+      border: none;
+      border-radius: 430px;
+      cursor: pointer;
+      font-size: 20px;
+      transition: background-color 0.3s ease;
+      display: block;
+      margin: 0 auto;
+      margin-top: 25px;
+    }
+
+    #convertBtn:hover {
+      background-color: #0056b3;
+    }
+
+    /* 公式说明区域 */
+    .formula-info {
+      margin-top: 15px;
+      padding: 10px;
+      background-color: #f0f7ff;
+      border-radius: 6px;
+      font-size: 14px;
+      color: #333;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <h2>锻比计算</h2>
+
+    <!-- 锻造方式选择区域 -->
+    <div class="form-group">
+      <select id="forgingMethod">
+        <option value="拔长锻造">拔长锻造</option>
+        <option value="镦粗锻造">镦粗锻造</option>
+        <option value="多道次锻造">多道次锻造</option>
+      </select>
+    </div>
+
+    <!-- 主内容区域：左侧输入，右侧输出 -->
+    <div class="main-content">
+      <!-- 左侧输入区域 -->
+      <div class="input-section" id="inputContainer">
+        <!-- 初始显示拔长锻造的输入框，后续根据选择动态改变 -->
+        <input id="inputA0" placeholder="输入A0" step="any">
+        <input id="inputA1" placeholder="输入A1" step="any">
+        <input id="inputD0" placeholder="输入D0" step="any">
+        <input id="inputD1" placeholder="输入D1" step="any">
+        <div class="formula-info">
+          公式：K = A0/A1 = (D0/D1)²
+        </div>
+      </div>
+
+      <!-- 右侧输出区域 -->
+      <div class="output-section">
+        <textarea id="outputResult" placeholder="计算结果将显示在这里..." readonly></textarea>
+      </div>
+    </div>
+
+    <!-- 转换按钮 -->
+    <button id="convertBtn" onclick="calculateK()">开始转化</button>
+  </div>
+
+  <script>
+    // 根据锻造方式显示对应的输入框和公式
+    function showInputsByMethod(method) {
+      const inputContainer = document.getElementById('inputContainer');
+      switch (method) {
+        case '拔长锻造':
+          inputContainer.innerHTML = `
+            <input id="inputA0" placeholder="输入A0" step="any">
+            <input id="inputA1" placeholder="输入A1" step="any">
+            <input id="inputD0" placeholder="输入D0" step="any">
+            <input id="inputD1" placeholder="输入D1" step="any">
+            <div class="formula-info">
+              公式：K = A0/A1 = (D0/D1)²
+            </div>
+          `;
+          break;
+        case '镦粗锻造':
+          inputContainer.innerHTML = `
+            <input id="inputH0" placeholder="输入H0" step="any">
+            <input id="inputH1" placeholder="输入H1" step="any">
+            <div class="formula-info">
+              公式：K = H0/H1
+            </div>
+          `;
+          break;
+        case '多道次锻造':
+          inputContainer.innerHTML = `
+            <input id="inputK1" placeholder="输入K1" step="any">
+            <input id="inputK2" placeholder="输入K2" step="any">
+            <input id="inputK3" placeholder="输入K3" step="any">
+            <div class="formula-info">
+              公式：K = K1×K2×K3
+            </div>
+          `;
+          break;
+        default:
+          break;
+      }
+    }
+
+    // 初始化时显示拔长锻造的输入框
+    window.onload = function () {
+      const forgingMethod = document.getElementById('forgingMethod').value;
+      showInputsByMethod(forgingMethod);
+    };
+
+    // 锻造方式改变时切换输入框
+    document.getElementById('forgingMethod').addEventListener('change', function () {
+      const method = this.value;
+      showInputsByMethod(method);
+      // 清空输出结果
+      document.getElementById('outputResult').value = '';
+    });
+
+    // 计算锻比 K
+    function calculateK() {
+      const forgingMethod = document.getElementById('forgingMethod').value;
+      let result, formula, details = '';
+      const outputElement = document.getElementById('outputResult');
+
+      try {
+        switch (forgingMethod) {
+          case '拔长锻造':
+            const A0 = parseFloat(document.getElementById('inputA0').value);
+            const A1 = parseFloat(document.getElementById('inputA1').value);
+            const D0 = parseFloat(document.getElementById('inputD0').value);
+            const D1 = parseFloat(document.getElementById('inputD1').value);
+            
+            if (isNaN(A0) || isNaN(A1) || A1 === 0) {
+              alert('请输入有效的A0和A1值，且A1不能为0');
+              return;
+            }
+            
+            if (isNaN(D0) || isNaN(D1) || D1 === 0) {
+              alert('请输入有效的D0和D1值，且D1不能为0');
+              return;
+            }
+            
+            const result1 = A0 / A1;
+            const result2 = Math.pow(D0 / D1, 2);
+            result = (result1 + result2) / 2; // 取两个结果的平均值
+            formula = "K = A0/A1 = (D0/D1)²";
+            details = `计算过程：\nA0/A1 = ${A0}/${A1} = ${result1.toFixed(4)}\n(D0/D1)² = (${D0}/${D1})² = ${result2.toFixed(4)}\n平均值 = ${result.toFixed(4)}`;
+            break;
+
+          case '镦粗锻造':
+            const H0 = parseFloat(document.getElementById('inputH0').value);
+            const H1 = parseFloat(document.getElementById('inputH1').value);
+            
+            if (isNaN(H0) || isNaN(H1) || H1 === 0) {
+              alert('请输入有效的H0和H1值，且H1不能为0');
+              return;
+            }
+            
+            result = H0 / H1;
+            formula = "K = H0/H1";
+            details = `计算过程：\n${H0}/${H1} = ${result.toFixed(4)}`;
+            break;
+
+          case '多道次锻造':
+            const K1 = parseFloat(document.getElementById('inputK1').value);
+            const K2 = parseFloat(document.getElementById('inputK2').value);
+            const K3 = parseFloat(document.getElementById('inputK3').value);
+            
+            if (isNaN(K1) || isNaN(K2) || isNaN(K3)) {
+              alert('请输入有效的K1、K2和K3值');
+              return;
+            }
+            
+            result = K1 * K2 * K3;
+            formula = "K = K1×K2×K3";
+            details = `计算过程：\n${K1} × ${K2} × ${K3} = ${result.toFixed(4)}`;
+            break;
+
+          default:
+            alert('未知的锻造方式');
+            return;
+        }
+
+        // 显示计算结果
+        outputElement.value = `锻比 K = ${result.toFixed(4)}\n\n${formula}\n\n${details}`;
+      } catch (error) {
+        alert('计算过程中出现错误：' + error.message);
+      }
+    }
+  </script>
+</body>
+
+</html>
+    

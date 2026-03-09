@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>单位制度转化</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      margin: 0;
+      background-color: #f0f2f5;
+      padding: 20px;
+    }
+
+    .container {
+      background-color: #fff;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      width: 100%;
+      max-width: 1000px;
+    }
+
+    h2 {
+      text-align: center;
+      color: #333;
+      margin-bottom: 30px;
+      font-size: 28px;
+    }
+
+    .form-group {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 25px;
+      align-items: center;
+    }
+
+    .swap-button {
+      margin: 0 20px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      transition: transform 0.3s ease;
+      padding: 5px;
+    }
+
+    .swap-button img {
+      width: 50px;
+      height: 50px;
+      object-fit: contain;
+    }
+
+    .swap-button:hover {
+      transform: rotate(180deg);
+    }
+
+    select {
+      padding: 14px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      width: 280px;
+      font-size: 16px;
+      background-color: #f8f9fa;
+    }
+
+    /* 放大数值输入区域 */
+    .value-inputs {
+      margin-top: 20px;
+      display: flex;
+      justify-content: space-between;
+      gap: 40px;
+    }
+
+    .value-inputs input {
+      position: static;
+      left: 0px;
+      top: 64px;
+      width: 524px;
+      height: 200px;
+      border-radius: 8px;
+      opacity: 1;
+      background: #FFFFFF;
+      box-sizing: border-box;
+      border: 1px solid #A7C4FF;
+      z-index: 1;
+      font-size: 24px;
+      padding: 15px;
+    }
+
+    /* 修改开始转化按钮样式 */
+    #convertBtn {
+      width: 30%;
+      padding: 18px;
+      background-color: #007bff;
+      color: #fff;
+      border: none;
+      border-radius: 430px;
+      cursor: pointer;
+      font-size: 20px;
+      transition: background-color 0.3s ease;
+      display: block;
+      margin: 0 auto;
+      margin-top: 25px;
+    }
+
+    #convertBtn:hover {
+      background-color: #0056b3;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <h2>单位制度转化</h2>
+
+    <!-- 单位选择区域 -->
+    <div class="form-group">
+      <select id="leftUnit">
+        <option value="C">摄氏度(℃)</option>
+        <option value="F">华氏度(℉)</option>
+        <option value="K">开尔文(K)</option>
+        <option value="mm">毫米(mm)</option>
+        <option value="in">英寸(in)</option>
+        <option value="m">米(m)</option>
+        <option value="ft">英尺(ft)</option>
+        <option value="mm2">平方毫米(mm²)</option>
+        <option value="in2">平方英寸(in²)</option>
+        <option value="m2">平方米(m²)</option>
+        <option value="ft2">平方英尺(ft²)</option>
+        <option value="cm3">立方厘米(cm³)</option>
+        <option value="in3">立方英寸(in³)</option>
+        <option value="m3">立方米(m³)</option>
+        <option value="ft3">立方英尺(ft³)</option>
+        <option value="N">牛顿(N)</option>
+        <option value="kgf">千克力(kgf)</option>
+        <option value="kN">千牛(kN)</option>
+        <option value="tf">吨力(tf)</option>
+        <option value="MPa">兆帕(MPa)</option>
+        <option value="psi">磅/平方英寸(psi)</option>
+        <option value="ksi">千磅/平方英寸(ksi)</option>
+        <option value="bar">巴(bar)</option>
+        <option value="kg">千克(kg)</option>
+        <option value="lb">磅(lb)</option>
+        <option value="t">吨(t)</option>
+        <option value="ton">短吨(ton)</option>
+      </select>
+
+      <select id="rightUnit">
+        <option value="F">华氏度(℉)</option>
+        <option value="C">摄氏度(℃)</option>
+        <option value="K">开尔文(K)</option>
+        <option value="in">英寸(in)</option>
+        <option value="mm">毫米(mm)</option>
+        <option value="ft">英尺(ft)</option>
+        <option value="m">米(m)</option>
+        <option value="in2">平方英寸(in²)</option>
+        <option value="mm2">平方毫米(mm²)</option>
+        <option value="ft2">平方英尺(ft²)</option>
+        <option value="m2">平方米(m²)</option>
+        <option value="in3">立方英寸(in³)</option>
+        <option value="cm3">立方厘米(cm³)</option>
+        <option value="ft3">立方英尺(ft³)</option>
+        <option value="m3">立方米(m³)</option>
+        <option value="kgf">千克力(kgf)</option>
+        <option value="N">牛顿(N)</option>
+        <option value="tf">吨力(tf)</option>
+        <option value="kN">千牛(kN)</option>
+        <option value="psi">磅/平方英寸(psi)</option>
+        <option value="MPa">兆帕(MPa)</option>
+        <option value="ksi">千磅/平方英寸(ksi)</option>
+        <option value="bar">巴(bar)</option>
+        <option value="lb">磅(lb)</option>
+        <option value="kg">千克(kg)</option>
+        <option value="ton">短吨(ton)</option>
+        <option value="t">吨(t)</option>
+      </select>
+    </div>
+
+    <!-- 数值输入区域（放大版本） -->
+    <div class="value-inputs">
+      <input id="leftValue" placeholder="输入数值" step="any">
+      <!-- 交换按钮 -->
+      <button class="swap-button" onclick="swapUnits()">
+        <img src="image/transformation.png" alt="交换单位">
+      </button>
+      <input id="rightValue" placeholder="结果" disabled step="any">
+    </div>
+
+    <!-- 转换按钮 -->
+    <button id="convertBtn" onclick="convert()">开始转化</button>
+  </div>
+
+  <script>
+    // 转换规则映射表，已修正温度转换公式
+    const conversionRules = {
+      // 温度转换 - 已修正公式
+      'C→F': (value) => (value * 9/5) + 32,  // 摄氏度转华氏度: °F = (°C × 9/5) + 32
+      'F→C': (value) => (value - 32) * 5/9,  // 华氏度转摄氏度: °C = (°F - 32) × 5/9
+      'C→K': (value) => value + 273.15,      // 摄氏度转开尔文: K = °C + 273.15
+      'K→C': (value) => value - 273.15,      // 开尔文转摄氏度: °C = K - 273.15
+      'F→K': (value) => (value - 32) * 5/9 + 273.15,  // 华氏度转开尔文
+      'K→F': (value) => (value - 273.15) * 9/5 + 32,  // 开尔文转华氏度
+
+      // 长度转换
+      'mm→in': (value) => value * 0.03937,
+      'in→mm': (value) => value * 25.4,
+      'm→ft': (value) => value * 3.28084,
+      'ft→m': (value) => value * 0.3048,
+
+      // 面积转换
+      'mm2→in2': (value) => value * 0.00155,
+      'in2→mm2': (value) => value / 0.00155,
+      'm2→ft2': (value) => value * 10.7639,
+      'ft2→m2': (value) => value / 10.7639,
+
+      // 体积转换
+      'cm3→in3': (value) => value * 0.061024,
+      'in3→cm3': (value) => value / 0.061024,
+      'm3→ft3': (value) => value * 35.3147,
+      'ft3→m3': (value) => value / 35.3147,
+
+      // 力转换
+      'N→kgf': (value) => value * 0.10197,
+      'kgf→N': (value) => value / 0.10197,
+      'kN→tf': (value) => value * 0.10197,
+      'tf→kN': (value) => value / 0.10197,
+
+      // 压力转换
+      'MPa→psi': (value) => value * 145.038,
+      'psi→MPa': (value) => value / 145.038,
+      'MPa→ksi': (value) => value * 0.145038,
+      'ksi→MPa': (value) => value / 0.145038,
+      'bar→MPa': (value) => value * 0.1,
+      'MPa→bar': (value) => value / 0.1,
+
+      // 质量转换
+      'kg→lb': (value) => value * 2.20462,
+      'lb→kg': (value) => value / 2.20462,
+      't→ton': (value) => value * 1.10231,
+      'ton→t': (value) => value / 1.10231
+    };
+
+    // 左侧单位 change 事件，用于设置右侧默认单位
+    document.getElementById('leftUnit').addEventListener('change', function () {
+      const leftUnit = this.value;
+      const rightUnitSelect = document.getElementById('rightUnit');
+      // 根据左侧单位，设置右侧默认单位
+      switch (leftUnit) {
+        case 'C':
+          rightUnitSelect.value = 'F';
+          break;
+        case 'F':
+          rightUnitSelect.value = 'C';
+          break;
+        case 'K':
+          rightUnitSelect.value = 'C';
+          break;
+        case 'mm':
+          rightUnitSelect.value = 'in';
+          break;
+        case 'in':
+          rightUnitSelect.value = 'mm';
+          break;
+        case 'm':
+          rightUnitSelect.value = 'ft';
+          break;
+        case 'ft':
+          rightUnitSelect.value = 'm';
+          break;
+        case 'mm2':
+          rightUnitSelect.value = 'in2';
+          break;
+        case 'in2':
+          rightUnitSelect.value = 'mm2';
+          break;
+        case 'm2':
+          rightUnitSelect.value = 'ft2';
+          break;
+        case 'ft2':
+          rightUnitSelect.value = 'm2';
+          break;
+        case 'cm3':
+          rightUnitSelect.value = 'in3';
+          break;
+        case 'in3':
+          rightUnitSelect.value = 'cm3';
+          break;
+        case 'm3':
+          rightUnitSelect.value = 'ft3';
+          break;
+        case 'ft3':
+          rightUnitSelect.value = 'm3';
+          break;
+        case 'N':
+          rightUnitSelect.value = 'kgf';
+          break;
+        case 'kgf':
+          rightUnitSelect.value = 'N';
+          break;
+        case 'kN':
+          rightUnitSelect.value = 'tf';
+          break;
+        case 'tf':
+          rightUnitSelect.value = 'kN';
+          break;
+        case 'MPa':
+          rightUnitSelect.value = 'psi';
+          break;
+        case 'psi':
+          rightUnitSelect.value = 'MPa';
+          break;
+        case 'bar':
+          rightUnitSelect.value = 'MPa';
+          break;
+        case 'kg':
+          rightUnitSelect.value = 'lb';
+          break;
+        case 'lb':
+          rightUnitSelect.value = 'kg';
+          break;
+        case 't':
+          rightUnitSelect.value = 'ton';
+          break;
+        case 'ton':
+          rightUnitSelect.value = 't';
+          break;
+        default:
+          rightUnitSelect.value = 'F';
+      }
+    });
+
+    // 交换左右单位
+    function swapUnits() {
+      const leftUnit = document.getElementById('leftUnit');
+      const rightUnit = document.getElementById('rightUnit');
+      const leftValue = document.getElementById('leftValue');
+      const rightValue = document.getElementById('rightValue');
+
+      // 交换单位
+      [leftUnit.value, rightUnit.value] = [rightUnit.value, leftUnit.value];
+
+      // 交换数值
+      if (rightValue.value) {
+        leftValue.value = rightValue.value;
+        rightValue.value = '';
+      }
+    }
+
+    // 执行转换
+    function convert() {
+      const leftUnit = document.getElementById('leftUnit').value;
+      const rightUnit = document.getElementById('rightUnit').value;
+      const leftValue = parseFloat(document.getElementById('leftValue').value);
+      const rightValueElement = document.getElementById('rightValue');
+      const key = `${leftUnit}→${rightUnit}`;
+
+      if (isNaN(leftValue)) {
+        alert('请输入有效的数值');
+        return;
+      }
+      
+      if (!conversionRules[key]) {
+        alert('暂不支持该单位转换组合');
+        return;
+      }
+
+      const result = conversionRules[key](leftValue);
+      rightValueElement.value = result.toFixed(5); // 保留 5 位小数
+    }
+  </script>
+</body>
+
+</html>

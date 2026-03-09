@@ -1,0 +1,275 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background-color: #f5f5f5;
+    padding: 20px;
+    color: #333;
+}
+
+.container {
+    max-width: 900px;
+    margin: 0 auto;
+    background: white;
+    border-radius: 12px;
+    padding: 24px;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+}
+
+.header {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 32px;
+}
+
+.icon {
+    color: #6366f1;
+    font-size: 24px;
+    margin-right: 12px;
+}
+
+.header h1 {
+    font-size: 24px;
+    font-weight: 600;
+    color: #111827;
+}
+
+.input-section h2,
+.output-section h2 {
+    font-size: 16px;
+    color: #6b7280;
+    margin-bottom: 16px;
+}
+
+.element-grid {
+    display: grid;
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+.element-row {
+    display: grid;
+    grid-template-columns: 60px 1fr 30px;
+    align-items: center;
+    gap: 12px;
+    padding: 0px;
+    background: #f9fafb;
+    border-radius: 8px;
+}
+
+.element-row:first-child {
+    background: #e5e7eb;
+    font-weight: 600;
+}
+
+.element-row input {
+    padding: 4px 6px;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    font-size: 14px;
+    background: white;
+}
+
+.element-row input:focus {
+    outline: none;
+    border-color: #6366f1;
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+}
+
+.temperature-row {
+    display: grid;
+    grid-template-columns: 60px 1fr 30px;
+    align-items: center;
+    gap: 12px;
+    padding: 12px;
+    background: #f9fafb;
+    border-radius: 8px;
+    margin-bottom: 32px;
+}
+
+.temperature-row input {
+    padding: 8px 12px;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    font-size: 14px;
+    background: white;
+}
+
+.output-section {
+    margin-bottom: 32px;
+}
+
+.result {
+    font-size: 48px;
+    font-weight: 600;
+    color: #111827;
+    padding: 0px;
+    text-align: center;
+}
+
+.calculate-btn {
+    width: 100%;
+    padding: 16px;
+    background: #3b82f6;
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    margin-bottom: 32px;
+    transition: background-color 0.2s;
+}
+
+.calculate-btn:hover {
+    background: #2563eb;
+}
+
+.tips-section {
+    margin-top: 32px;
+}
+
+.tips-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+}
+
+.tips-header span:first-child {
+    font-size: 16px;
+    color: #6b7280;
+}
+
+.ki-link {
+    color: #3b82f6;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.ki-link:hover {
+    text-decoration: underline;
+}
+
+.tips-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+}
+
+.tips-table th,
+.tips-table td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.tips-table th {
+    background: #f9fafb;
+    font-weight: 600;
+    color: #374151;
+}
+
+.tips-table td {
+    color: #6b7280;
+}
+
+/* 弹窗样式 */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+}
+
+.modal-content {
+    background-color: white;
+    margin: 5% auto;
+    padding: 0;
+    border-radius: 12px;
+    width: 90%;
+    max-width: 600px;
+    max-height: 80vh;
+    overflow: hidden;
+    position: relative;
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 24px;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.modal-header h3 {
+    font-size: 18px;
+    font-weight: 600;
+    color: #111827;
+}
+
+.close {
+    color: #6b7280;
+    font-size: 24px;
+    font-weight: bold;
+    cursor: pointer;
+    line-height: 1;
+}
+
+.close:hover {
+    color: #374151;
+}
+
+.ki-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.ki-table th,
+.ki-table td {
+    padding: 12px 24px;
+    text-align: left;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.ki-table th {
+    background: #f9fafb;
+    font-weight: 600;
+    color: #374151;
+    position: sticky;
+    top: 0;
+}
+
+.ki-table td {
+    color: #6b7280;
+}
+
+.ki-table tr:hover {
+    background: #f9fafb;
+}
+
+/* 响应式设计 */
+@media (max-width: 640px) {
+    .container {
+        margin: 0;
+        border-radius: 0;
+        padding: 16px;
+    }
+    
+    .modal-content {
+        width: 95%;
+        margin: 10% auto;
+    }
+}

@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>连铸壳厚/拉速安全核算</title>
+  <link rel="stylesheet" href="index.css">
+</head>
+
+<body>
+  <div class="section">
+    <div class="container">
+      <div class="header">
+        <div class="logo-container">
+          <img src="icon.svg" alt="连铸壳厚/拉速安全核算" class="logo">
+          <h1>连铸壳厚/拉速安全核算</h1>
+        </div>
+      </div>
+      <div class="main-content">
+        <!-- 输入区域 -->
+        <div class="input-section-container">
+          <div style="height: 40px;display: flex ; justify-content: space-between; align-items: center;">
+            <p class="section-title">输入</span></p>
+            <div class="header-actions">
+              <button class="btn" id="btnExample">填入示例</button>
+            </div>
+          </div>
+          <div class="input-section">
+            <div class="input-fields">
+              <div class="field">
+                <label>凝固系数 K（mm/√min）</label>
+                <input type="number" id="K" step="0.1" value="25">
+                <div class="hint">K 与钢种、过热度、二冷、振动等有关。请用你们厂经验/标定值。</div>
+              </div>
+              <div class="field">
+                <label>结晶器有效长度 L（m）</label>
+                <input type="number" id="L" step="0.01" value="0.9">
+              </div>
+              <div class="field">
+                <label>拉速 v（m/min）</label>
+                <input type="number" id="v" step="0.01" value="1.6">
+              </div>
+              <div class="field">
+                <label>最低壳厚 δ_min（mm）</label>
+                <input type="number" id="dMin" step="0.1" value="12">
+                <div class="hint">δ_min 的取值通常与断面/漏钢风险/现场经验有关。</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- 输出区域 -->
+        <div class="output-section-container">
+          <div style="height: 40px;display: flex ; justify-content: space-between; align-items: center;">
+            <p class="section-title">输出（计算结果）</p>
+          </div>
+          <div class="output-section">
+            <div>
+              <div id="gauge" class="gauge-container">
+                <h3>壳厚δ与最低要求 δ_min:</h3>
+                <div class="status-badge" id="statusBadge">满足最低壳厚</div>
+                <div class="gauge-bar-container">
+                  <div class="gauge-bar" id="gaugeBar"></div>
+                  <div class="gauge-marker" id="gaugeMarker"></div>
+                  <div class="gauge-labels">
+                    <span id="deltaLabel">δ=0.00</span>
+                    <span id="deltaMinLabel">δ_min=0.00</span>
+                  </div>
+                </div>
+              </div>
+              <!-- <div class="hint">图示：壳厚 δ 与最低要求 δ_min 的对比（仅用于直观提示）。</div> -->
+            </div>
+
+            <div class="result-table-container">
+              <table class="result-table" id="resultTable">
+                <thead>
+                  <tr>
+                    <th>项目</th>
+                    <th>数值</th>
+                  </tr>
+                </thead>
+                <tbody class="resultTableBody" id="resultTableBody">
+                  <!-- 计算结果将动态生成 -->
+                </tbody>
+              </table>
+            </div>
+
+            <div class="summary">
+              <h3>结论：</h3>
+              <!-- 计算汇总将动态生成 -->
+              <div id="summary">
+                <p>点击“计算”生成结果。</p>
+              </div>
+            </div>
+            <div class="warnings">
+              <h3>告警与校验：</h3>
+              <!-- 告警信息将动态生成 -->
+              <div id="warnings">
+                <p>无明显问题</p>
+              </div>
+            </div>
+            <div class="hint">
+              说明：δ=K√(L/v) 是常见的“壳厚经验关系”。它用于快速核算趋势与安全裕度，不替代更细的传热/凝固模型。
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="calculation-buttons">
+        <button class="btn primary" id="btnCalc">开始计算</button>
+        <button class="btn secondary" id="btnClear">清除数据</button>
+      </div>
+      <div class="footer">
+        <h3>壳厚经验公式：</h3>
+
+        <div class="formula">
+          <p>t = L / v （在结晶器内停留时间）</p>
+          <p>δ = K × √t = K × √(L / v)</p>
+          <p>反推最大拉速（给定 δ_min）：v_max = L × (K / δ_min)²</p>
+        </div>
+
+        <ul>
+          <li>• δ（壳厚）：凝固壳的厚度（mm）。壳太薄会增加漏钢风险。</li>
+          <li>• K（凝固系数）：把复杂的传热凝固过程“浓缩成一个系数”。K 需要按钢种、设备与冷却条件标定。</li>
+          <li>• v_max：在给定 K、L 与最低壳厚要求 δ_min 下，允许的最大拉速。</li>
+        </ul>
+
+        <p><strong>注意：</strong></p>
+        &nbsp;
+        <p>本 App 使用的是经验公式，真实连铸还受二冷、水量、过热度、振动、粉渣润滑等影响。该公式适合做“快速核算”和“方案对比”。</p>
+        <p>工程提示：K 的单位必须与你使用的时间单位匹配。本页面采用 L(m)、v(m/min) ⇒ t(min)，因此 K 需按 “mm/√min” 口径使用。</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- 提示框 -->
+  <div class="toast" id="toast" style="display: none;">
+    <h4 id="toastTitle"></h4>
+    <p id="toastMsg"></p>
+  </div>
+
+  <script src="index.js"></script>
+</body>
+
+</html>

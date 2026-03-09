@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>渣氧化性口径换算与判级</title>
+  <link rel="stylesheet" href="index.css">
+</head>
+
+<body>
+  <div class="section">
+    <div class="container">
+      <div class="header">
+        <div class="logo-container">
+          <img src="icon.svg" alt="渣氧化性口径换算与判级" class="logo">
+          <h1>渣氧化性口径换算与判级</h1>
+        </div>
+      </div>
+      <div class="main-content">
+        <!-- 输入区域 -->
+        <div class="input-section-container">
+          <div style="height: 40px;display: flex ; justify-content: space-between; align-items: center;">
+            <p class="section-title">输入</p>
+            <div class="header-actions">
+              <button class="btn" id="btnExample">填入示例</button>
+            </div>
+          </div>
+          <div class="input-section">
+            <div class="input-fields">
+              <div class="field">
+                <label>输入口径</label>
+                <select id="mode">
+                  <option value="feo_fe2o3">FeO% + Fe₂O₃%</option>
+                  <option value="sigma">ΣFeO（FeO等效）%</option>
+                  <option value="tfe">TFe（以Fe计）%</option>
+                </select>
+              </div>
+              <div class="field">
+                <label>判级口径</label>
+                <select id="gradeBasis">
+                  <option value="sigma">按 ΣFeO 判级</option>
+                  <option value="tfe">按 TFe 判级</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="input-fields">
+              <div class="field">
+                <label>FeO（%）</label>
+                <input type="number" id="feo" step="0.1" value="18">
+              </div>
+              <div class="field">
+                <label>Fe₂O₃（%）</label>
+                <input type="number" id="fe2o3" step="0.1" value="4">
+              </div>
+            </div>
+
+            <div class="input-fields">
+              <div class="field">
+                <label>低/中阈值</label>
+                <input type="number" id="th1" step="0.1" value="15">
+              </div>
+              <div class="field">
+                <label>中/高阈值</label>
+                <input type="number" id="th2" step="0.1" value="25">
+              </div>
+              <div class="hint">
+                例如 ΣFeO：低<15，中 15~25，高>25（仅示例）。
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- 输出区域 -->
+        <div class="output-section-container">
+          <div style="height: 40px;display: flex ; justify-content: space-between; align-items: center;">
+            <p class="section-title">输出（计算结果）</p>
+          </div>
+          <div class="output-section">
+            <div class="result-table-container">
+              <table class="result-table" id="resultTable">
+                <thead>
+                  <tr>
+                    <th>项目</th>
+                    <th>数值</th>
+                  </tr>
+                </thead>
+                <tbody class="resultTableBody" id="resultTableBody">
+                  <!-- 计算结果将动态生成 -->
+                </tbody>
+              </table>
+            </div>
+            <div class="summary">
+              <h3>结论：</h3>
+              <!-- 计算汇总将动态生成 -->
+              <div id="summary">
+                <p>点击“计算”生成结果。</p>
+              </div>
+            </div>
+            <div class="warnings">
+              <h3>告警与校验：</h3>
+              <!-- 告警信息将动态生成 -->
+              <div id="warnings">
+                <p>无明显问题</p>
+              </div>
+            </div>
+            <div class="hint">
+              说明：ΣFeO 的常用换算为 ΣFeO = FeO + 0.9 × Fe₂O₃（all-iron method）。如果你们厂口径不同，请在内部统一后再使用判级阈值。
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="calculation-buttons">
+        <button class="btn primary" id="btnCalc">开始计算</button>
+        <button class="btn secondary" id="btnClear">清除数据</button>
+      </div>
+      <div class="footer">
+        <h3>常见口径：</h3>
+ 
+        <ul>
+          <li>FeO%、Fe₂O₃%：分别表示不同价态铁氧化物。</li>
+          <li>ΣFeO（FeO等效）%：把多种价态统一折算成“FeO等效”，便于比较。</li>
+          <li>TFe%：按“Fe元素质量分数”表示的总铁。</li>
+        </ul>
+
+        <div class="formula">
+          <p>(1) ΣFeO（all-iron method，常用）</p>
+          <p>ΣFeO = FeO + 0.9 × Fe₂O₃</p>
+          <p>&nbsp;</p>
+          <p>(2) 若已知 FeO 与 Fe₂O₃，可计算 TFe（以Fe计）</p>
+          <p>TFe = FeO × (56/72) + Fe₂O₃ × (112/160)</p>
+          <p>&nbsp;</p>
+          <p>(3) 若只给 TFe，可近似换算 FeO等效（假设都按FeO）</p>
+          <p>ΣFeO ≈ TFe × (72/56)</p>
+        </div>
+
+        <p><strong>注意：</strong></p>
+        <ul>
+          <li>从 TFe 反推 ΣFeO 本质上需要假设价态；本工具用“FeO等效”作为工程近似。若有更准确的价态信息，优先用 FeO/Fe₂O₃ 口径。</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- 提示框 -->
+  <div class="toast" id="toast" style="display: none;">
+    <h4 id="toastTitle"></h4>
+    <p id="toastMsg"></p>
+  </div>
+
+  <script src="index.js"></script>
+</body>
+
+</html>

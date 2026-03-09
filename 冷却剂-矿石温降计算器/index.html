@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>冷却剂/矿石温降计算器</title>
+  <link rel="stylesheet" href="index.css">
+</head>
+
+<body>
+  <div class="section">
+    <div class="container">
+      <div class="header">
+        <div class="logo-container">
+          <img src="icon.svg" alt="冷却剂/矿石温降计算器" class="logo">
+          <h1>冷却剂/矿石温降计算器</h1>
+        </div>
+      </div>
+      <div class="main-content">
+        <!-- 输入区域 -->
+        <div class="input-section-container">
+          <div style="height: 40px;display: flex ; justify-content: space-between; align-items: center;">
+            <p class="section-title">输入</span></p>
+            <div class="header-actions">
+              <button class="btn" id="btnExample">填入示例</button>
+            </div>
+          </div>
+          <div class="input-section">
+            <div class="input-fields">
+              <div class="field">
+                <label>钢水量（t）</label>
+                <input type="number" id="steelTon" step="0.1" value="150">
+              </div>
+              <div class="field">
+                <label>钢水比热 Cp（kJ/kg·K）</label>
+                <input type="number" id="cpSteel" step="0.01" value="0.84">
+              </div>
+              <div class="field">
+                <label>当前温度（℃）</label>
+                <input type="number" id="tCur" step="1" value="1700">
+              </div>
+              <div class="field">
+                <label>目标温度（℃）</label>
+                <input type="number" id="tTgt" step="1" value="1650">
+              </div>
+            </div>
+
+            <div class="input-fields">
+              <div class="field">
+                <label>计算模式</label>
+                <select id="mode">
+                  <option value="needMass">按目标温度反算冷却剂质量</option>
+                  <option value="tempAfter">给定冷却剂质量，计算温度变化</option>
+                </select>
+              </div>
+              <div class="field">
+                <label>冷却剂质量（kg）</label>
+                <input type="number" id="coolantKg" step="1" value="2000">
+              </div>
+            </div>
+
+            <div class="material-params">
+              <h3 style="margin-bottom: 10px;">冷却剂热参数（可用模板，也可自定义）</h3>
+              <div class="input-fields" style="grid-template-columns: 1fr;">
+                <div class="field">
+                  <label>模板</label>
+                  <select id="template">
+                    <option value="scrap">废钢/金属料（加热+熔化+过热）</option>
+                    <option value="ore">矿石/氧化物（仅加热 + 可选反应热）</option>
+                    <option value="custom">自定义</option>
+                  </select>
+                </div>
+              </div>
+              <div class="input-fields">
+                <div class="field">
+                  <label>冷却剂初始温度 T0（℃）</label>
+                  <input type="number" id="t0" step="1" value="25">
+                </div>
+                <div class="field">
+                  <label>热模型</label>
+                  <select id="thermalModel">
+                    <option value="solidOnly">仅加热（不考虑熔化）</option>
+                    <option value="melt">加热 + 熔化 + 过热</option>
+                  </select>
+                </div>
+                <div class="field">
+                  <label>固相比热 Cp_s（kJ/kg·K）</label>
+                  <input type="number" id="cpS" step="0.01" value="0.70">
+                </div>
+                <div class="field">
+                  <label>液相比热 Cp_l（kJ/kg·K）</label>
+                  <input type="number" id="cpL" step="0.01" value="0.82">
+                </div>
+                <div class="field">
+                  <label>熔点 Tm（℃）</label>
+                  <input type="number" id="tm" step="1" value="1538">
+                </div>
+                <div class="field">
+                  <label>熔化潜热 L（kJ/kg）</label>
+                  <input type="number" id="latent" step="1" value="247">
+                </div>
+              </div>
+              <div class="input-fields" style="grid-template-columns: 1fr;">
+                <div class="field">
+                  <label>反应吸热/放热（kJ/kg，可选）</label>
+                  <input type="number" id="rxn" step="10" value="0">
+                  <div class="hint">正值表示吸热（更强冷却）；负值表示放热。若不确定请填 0。</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- 输出区域 -->
+        <div class="output-section-container">
+          <div style="height: 40px;display: flex ; justify-content: space-between; align-items: center;">
+            <p class="section-title">输出（计算结果）</p>
+          </div>
+          <div class="output-section">
+            <div class="result-table-container">
+              <table class="result-table" id="resultTable">
+                <thead>
+                  <tr>
+                    <th>项目</th>
+                    <th>数值</th>
+                  </tr>
+                </thead>
+                <tbody class="resultTableBody" id="resultTableBody">
+                  <!-- 计算结果将动态生成 -->
+                </tbody>
+              </table>
+            </div>
+            <div class="summary">
+              <h3>结论：</h3>
+              <!-- 计算汇总将动态生成 -->
+              <div id="summary">
+                <p>点击“计算”生成结果。</p>
+              </div>
+            </div>
+            <div class="warnings">
+              <h3>告警与校验：</h3>
+              <!-- 告警信息将动态生成 -->
+              <div id="warnings">
+                <p>无明显问题</p>
+              </div>
+            </div>
+            <div class="hint">
+              说明：本 App 使用能量守恒的简化模型（不包含吹炼放热/吸热、渣热、辐射损失等细项）。它适合做“现场快速估算”，并应结合本厂经验系数进行修正。
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="calculation-buttons">
+        <button class="btn primary" id="btnCalculate">开始计算</button>
+        <button class="btn secondary" id="btnClear">清除数据</button>
+      </div>
+      <div class="footer">
+        <h3>公式与术语：</h3>
+        <p>本 App做什么：用能量守恒估算“加多少冷却剂能降多少温”，或“要降到目标温度需要加多少冷却剂”。</p>
+
+        <div class="formula">
+          <p>(1) 钢水需要放出的热量（冷却需求）</p>
+          <p>Q_need (kJ) = m_steel(kg) × Cp_steel(kJ/kg·K) × (T_current - T_target)</p>
+          <p>&nbsp;</p>
+          <p>(2) 冷却剂每 1 kg 吸收的热量（简化）</p>
+          <p>若选择“仅加热”：</p>
+          <p>q (kJ/kg) = Cp_s × (T_final - T0) + H_reaction</p>
+          <p>&nbsp;</p>
+          <p>若选择“加热+熔化+过热”：</p>
+          <p>q (kJ/kg) = Cp_s × (Tm - T0) + L + Cp_l × (T_final - Tm) + H_reaction</p>
+          <p>&nbsp;</p>
+          <p>(3) 反算冷却剂质量</p>
+          <p>m_coolant (kg) = Q_need / q</p>
+        </div>
+
+        <ul>
+          <li>Cp（比热）：每 1 kg 物质升高 1℃所需的热量。不同温度下 Cp 会变化，所以页面允许你调整。</li>
+          <li>潜热 L：相变（熔化）需要的热量，不引起温度变化。</li>
+          <li>反应热：某些冷却剂（如氧化物还原）可能伴随吸热/放热，若不确定可先填 0。</li>
+        </ul>
+
+        <p><strong>注意：</strong></p>
+        &nbsp;
+        <p>该模型没有包含吹炼反应放热、渣热、炉体散热等。生产上常会在此基础上叠加“经验修正系数”。</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- 提示框 -->
+  <div class="toast" id="toast" style="display: none;">
+    <h4 id="toastTitle"></h4>
+    <p id="toastMsg"></p>
+  </div>
+
+  <script src="index.js"></script>
+</body>
+
+</html>

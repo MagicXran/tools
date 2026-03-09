@@ -1,0 +1,446 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: Arial, sans-serif;
+  color: #333;
+  line-height: 1.6;
+  height: 100vh;
+}
+
+.section {
+  height: 100%;
+}
+
+.container {
+  max-width: 1200px;
+  height: 100%;
+  margin: 0 auto;
+  padding: 20px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+
+  background-image: url('image.png');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+.header {
+  padding-bottom: 10px;
+  border-radius: 8px;
+}
+
+.logo-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.logo {
+  width: 40px;
+  height: 40px;
+}
+
+.header h1 {
+  font-size: 36px;
+  font-weight: bold;
+  margin: 0;
+}
+
+.header-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.main-content {
+  height: 50%;
+  display: flex;
+  gap: 20px;
+}
+
+.input-section-container,
+.output-section-container {
+  width: calc(50% - 10px);
+  display: flex;
+  flex-direction: column;
+
+
+}
+
+.section-title {
+  font-family: Alibaba PuHuiTi 2.0;
+  font-size: 20px;
+  font-weight: 500;
+  line-height: 22px;
+  /* 输入 */
+  color: #3D3D3D
+}
+
+.input-section,
+.output-section {
+  height: calc(100% - 40px);
+  background-color: #ffffff;
+  padding: 20px;
+  border-radius: 8px;
+  border: 1px solid #A7C4FF;
+  overflow-y: auto;
+}
+
+.input-section h2,
+.output-section h2 {
+  font-size: 18px;
+  margin-bottom: 20px;
+  color: #333;
+  font-weight: bold;
+}
+
+.input-section h3 {
+  font-size: 16px;
+  color: #333;
+  font-weight: bold;
+}
+
+.input-fields {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 15px;
+  margin-bottom: 20px;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.field input, .field select {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+.field select {
+  width: 100%;
+}
+
+.material-params h3 {
+  margin-bottom: 15px;
+  color: #333;
+  font-size: 16px;
+  font-weight: bold;
+}
+
+.field label {
+  display: block;
+  margin-bottom: 5px;
+  font-size: 14px;
+  color: #666;
+}
+
+.table-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 10px 0;
+}
+
+.calculation-buttons {
+  display: flex;
+  gap: 15px;
+  margin-top: 20px;
+  justify-content: center;
+}
+
+.btn {
+  padding: 5px 10px;
+  border: 1px solid #4458FE;
+  border-radius: 2px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.3s;
+  background-color: #EDF3FF;
+  color: #4458FE;
+}
+
+.btn:hover {
+  background-color: #dadcff;
+}
+
+.btn.primary {
+  background-color: #4458FE;
+  color: white;
+  padding: 12px 80px;
+  font-size: 16px;
+  border-radius: 50px;
+  border: none;
+}
+
+.btn.primary:hover {
+  background-color: #187bcd;
+}
+
+.btn.secondary {
+  background-color: white;
+  border: 1px solid #409EFF;
+  border-radius: 50px;
+  padding: 12px 80px;
+  font-size: 16px;
+}
+
+.btn.secondary:hover {
+  background-color: #f0f8ff;
+}
+
+.table-container,
+.result-table-container {
+  overflow-x: auto;
+  overflow-y: auto;
+}
+
+.table-container {
+  height: calc(100% - 145.39px);
+}
+
+.alloy-table,
+.result-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+  display: table;
+}
+
+.alloy-table thead,
+.result-table thead {
+  position: sticky;
+  top: 0;
+  background-color: #f0f8ff;
+  z-index: 10;
+}
+
+.alloy-table th,
+.alloy-table td,
+.result-table th,
+.result-table td {
+  padding: 10px;
+  text-align: left;
+  min-width: 200px;
+  display: table-cell;
+}
+
+.alloy-table tr,
+.alloy-table tr,
+.result-table tr,
+.result-table tr {
+  display: flex;
+  overflow-x: auto;
+  border-bottom: 1px solid #EBEEF5;
+}
+
+.alloy-table th,
+.result-table th {
+  background-color: #F5F7FA;
+  font-weight: bold;
+  color: #717A87;
+}
+
+.alloy-table td input,
+.alloy-table td select {
+  width: 100%;
+  padding: 6px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+.alloy-table td select {
+  width: 100%;
+}
+
+.alloy-table td span {
+  color: #4458FE;
+  font-size: 12px;
+  cursor: pointer;
+  line-height: 30px;
+}
+
+.alloy-table td span:hover {
+  color: #0019fb;
+}
+
+.alloy-table tbody {
+  overflow: auto;
+  height: 100%;
+}
+
+.hint {
+  font-size: 12px;
+  color: #666;
+  margin-top: 10px;
+  font-style: italic;
+}
+
+.summary {
+  margin: 20px 0;
+  padding: 15px;
+  background-color: #f0f8ff;
+  border-radius: 4px;
+  border-left: 4px solid #1e90ff;
+  font-size: 14px;
+  line-height: 1.6;
+  color: #333;
+}
+
+.summary h3 {
+  margin-top: 0;
+  margin-bottom: 10px;
+  font-size: 16px;
+  font-weight: bold;
+  color: #333;
+}
+
+.warnings {
+  margin: 20px 0;
+  padding: 15px;
+  background-color: #fff3f3;
+  border-radius: 4px;
+  border-left: 4px solid #ff6347;
+  font-size: 14px;
+  line-height: 1.6;
+  color: #333;
+}
+
+.warnings h3 {
+  margin-top: 0;
+  margin-bottom: 10px;
+  font-size: 16px;
+  font-weight: bold;
+  color: #333;
+}
+
+.warnings ul {
+  margin-left: 20px;
+  margin-top: 10px;
+  margin-bottom: 0;
+}
+
+.warnings li {
+  margin: 5px 0;
+}
+
+.footer {
+  margin-top: 20px;
+  padding: 20px;
+  background-color: #F5F5FA;
+  border-radius: 8px;
+  font-size: 14px;
+  color: #1D2129;
+  line-height: 1.6;
+  overflow: auto;
+  height: calc(50% - 158px);
+}
+
+.footer h3 {
+  margin-bottom: 5px;
+  color: #717A87;
+  font-size: 16px;
+  font-weight: bold;
+}
+
+.footer .formula {
+  background: #E5E5EE;
+  padding: 15px;
+  border-radius: 8px;
+  margin: 15px 0;
+  font-family: 'Courier New', Courier, monospace;
+}
+
+.footer .formula p {
+  margin: 5px 0;
+}
+
+.footer ul {
+  margin: 15px 0 15px 20px;
+}
+
+.footer li {
+  margin: 8px 0;
+}
+
+.footer strong {
+  color: #717A87;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .main-content {
+    flex-direction: column;
+  }
+
+  .input-fields {
+    flex-direction: column;
+  }
+
+  .calculation-buttons {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .calculation-buttons .btn {
+    width: 100%;
+  }
+}
+
+/* 提示框样式 */
+.toast {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  background-color: #333;
+  color: white;
+  padding: 15px;
+  border-radius: 4px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+  z-index: 1000;
+  min-width: 250px;
+}
+
+.toast h4 {
+  margin-bottom: 5px;
+  font-size: 16px;
+}
+
+.toast p {
+  font-size: 14px;
+  margin: 0;
+}
+
+/* Chrome, Safari, Edge, Opera */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-button {
+  display: none;
+  /* 隐藏上下箭头按钮 */
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 6px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}

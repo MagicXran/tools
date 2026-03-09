@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="style.css">
+  <title>钢材重量计算</title>
+</head>
+
+<body>
+  <h1>钢材重量计算</h1>
+  <div class="steel-types">
+    <div class="steel-item" data-type="round-steel">
+        <img src="images/download/round-steel.png" alt="圆钢">
+        <div>圆钢</div>
+    </div>
+    <div class="steel-item" data-type="square-steel">
+        <img src="images/download/square-steel.png" alt="方钢">
+        <div>方钢</div>
+    </div>
+    <div class="steel-item" data-type="equal-angle-steel">
+        <img src="images/download/equal-angle-steel.png" alt="等边角钢">
+        <div>等边角钢</div>
+    </div>
+    <div class="steel-item" data-type="steel-plate">
+        <img src="images/download/steel-plate.png" alt="钢板">
+        <div>钢板</div>
+    </div>
+    <div class="steel-item" data-type="flat-steel">
+        <img src="images/download/flat-steel.png" alt="扁钢">
+        <div>扁钢</div>
+    </div>
+    <div class="steel-item" data-type="hexagonal-steel">
+        <img src="images/download/hexagonal-steel.png" alt="六角钢">
+        <div>六角钢</div>
+    </div>
+    <div class="steel-item" data-type="octagonal-steel">
+        <img src="images/download/octagonal-steel.png" alt="八角钢">
+        <div>八角钢</div>
+    </div>
+    <div class="steel-item" data-type="patterned-plate">
+        <img src="images/download/patterned-plate.png" alt="花纹板">
+        <div>花纹板</div>
+    </div>
+    <div class="steel-item" data-type="thread-steel">
+        <img src="images/download/thread-steel.png" alt="螺纹钢">
+        <div>螺纹钢</div>
+    </div>
+    <div class="steel-item" data-type="channel-steel">
+        <img src="images/download/channel-steel.png" alt="槽钢">
+        <div>槽钢</div>
+    </div>
+    <div class="steel-item" data-type="i-steel">
+        <img src="images/download/i-steel.png" alt="工字钢">
+        <div>工字钢</div>
+    </div>
+    <div class="steel-item" data-type="h-steel">
+        <img src="images/download/h-steel.png" alt="H型钢">
+        <div>H型钢</div>
+    </div>
+    <div class="steel-item" data-type="copper-pipe">
+        <img src="images/download/copper-pipe.png" alt="铜管">
+        <div>钢管</div>
+    </div>
+    <div class="steel-item" data-type="unequal-angle-copper">
+        <img src="images/download/unequal-angle-copper.png" alt="不等边角铜">
+        <div>不等边角钢</div>
+    </div>
+    <div class="steel-item" data-type="square-pipe">
+        <img src="images/download/square-pipe.png" alt="方管">
+        <div>方管</div>
+    </div>
+    <!-- 可继续添加其他钢材类型 -->
+</div>
+
+  <!-- 通用弹窗容器 -->
+  <div class="modal" id="modal">
+    <div class="modal-content">
+      <span class="close">&times;</span>
+      <div class="modal-body" id="modal-body">
+        <!-- 内容动态填充 -->
+      </div>
+    </div>
+  </div>
+
+  <!-- 密度表弹窗 -->
+  <div class="modal" id="density-modal">
+    <div class="modal-content">
+      <span class="close">&times;</span>
+      <h2>常用钢铁材料密度表</h2>
+      <table>
+        <tr>
+          <th>名称</th>
+          <th>牌号</th>
+          <th>密度ρ=g/cm³</th>
+        </tr>
+        <tr>
+          <td>灰铸铁</td>
+          <td>HT100-HT350</td>
+          <td>6.6-7.4</td>
+        </tr>
+        <tr>
+          <td>白口铸铁</td>
+          <td>S15、P08、J13等</td>
+          <td>7.4-7.7</td>
+        </tr>
+        <!-- 可继续补充更多密度数据 -->
+      </table>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+
+</html>

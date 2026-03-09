@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>淬火温度计算器</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        background: url('image/page-bg.png') no-repeat center center fixed;
+        min-height: 100vh;
+        padding: 2rem;
+      }
+
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+      }
+
+      .header {
+        text-align: center;
+        margin-bottom: 2rem;
+      }
+
+      .header h1 {
+        color: #1d2129;
+        font-size: 36px;
+        font-weight: 700;
+        font-family: Source Han Sans;
+        line-height: 54px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+      }
+
+      .tabs {
+        margin-bottom: 2rem;
+        border-bottom: 1px solid #e4e7ed;
+      }
+
+      .tab-button {
+        padding: 0.75rem 1.5rem;
+        font-size: 14px;
+        font-weight: 400;
+        font-family: regular/body1-Regular;
+        line-height: 22px;
+        border: none;
+        background: none;
+        cursor: pointer;
+        border-bottom: 2px solid transparent;
+        color: #1d2129;
+        transition: all 0.2s;
+      }
+
+      .tab-button:hover {
+        color: #374151;
+      }
+
+      .tab-button.active {
+        color: #4458fe;
+        border-bottom-color: #4458fe;
+      }
+
+      .tab-content {
+        display: none;
+      }
+
+      .tab-content.active {
+        display: block;
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 2rem;
+        margin-bottom: 2rem;
+      }
+
+      @media (max-width: 1024px) {
+        .grid {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      .section-title {
+        font-size: 20px;
+        font-weight: 500;
+        font-family: medium/Headline1-Medium;
+        color: #3d3d3d;
+        margin-bottom: 16px;
+      }
+
+      .card {
+        min-height: 250px;
+        background: #ffffff;
+        border: 1px solid #a7c4ff;
+        border-radius: 8px;
+        padding: 16px;
+      }
+
+      .form-group {
+        margin-bottom: 1rem;
+      }
+
+      .form-group:last-child {
+        margin-bottom: 0;
+      }
+
+      .label {
+        margin-bottom: 6px;
+        font-family: Alibaba PuHuiTi 2;
+        color: #717a87;
+        font-size: 14px;
+        line-height: 22px;
+        font-weight: 500;
+      }
+
+      .input,
+      .select {
+        width: 100%;
+        padding: 8px 12px;
+        border: 1px solid #e6e9f4;
+        font-family: Alibaba PuHuiTi 2;
+        font-weight: 400;
+        line-height: 22px;
+        border-radius: 6px;
+        font-size: 13px;
+        background-color: #ffffff;
+        color: #1d2129;
+      }
+
+      .input:focus,
+      .select:focus {
+        outline: none;
+        border-color: #2563eb;
+        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+      }
+
+      .grid-2 {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+      }
+
+      .result-item {
+        display: flex;
+        justify-content: flex-start;
+        align-items: center;
+        margin-bottom: 1.5rem;
+      }
+
+      .result-item:last-child {
+        margin-bottom: 0;
+      }
+
+      .result-label {
+        color: #3e4754;
+        font-family: PingFang SC;
+        font-size: 20px;
+        line-height: 28px;
+        font-weight: 400;
+      }
+
+      .result-value {
+        font-family: HarmonyOS Sans;
+        font-size: 24px;
+        font-weight: 500;
+        line-height: 32px;
+        color: #ff2855;
+      }
+
+      .button-container {
+        display: flex;
+        justify-content: center;
+        margin-bottom: 2rem;
+      }
+
+      .calc-button {
+        padding: 0.75rem 3rem;
+        font-size: 1.125rem;
+        background: #3b82f6;
+        color: white;
+        border: none;
+        border-radius: 9999px;
+        cursor: pointer;
+        transition: background-color 0.2s;
+      }
+
+      .calc-button:hover {
+        background: #2563eb;
+      }
+
+      .info-grid {
+        display: grid;
+        background-color: #f5f5fa;
+        grid-template-columns: 1fr 1fr;
+        gap: 2rem;
+      }
+
+      @media (max-width: 768px) {
+        .info-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      .info-card {
+        padding: 1.5rem;
+      }
+
+      .info-title {
+        font-family: medium/Headline3-Medium;
+        font-weight: 500;
+        font-size: 16px;
+        line-height: 24px;
+        color: #3d3d3d;
+        margin-bottom: 12px;
+      }
+
+      .info-content {
+        font-family: 'Courier New', monospace;
+        font-size: 13px;
+        color: #374151;
+        line-height: 24px;
+      }
+
+      .info-content div {
+        margin-bottom: 0.25rem;
+      }
+
+      .info-content strong {
+        font-weight: 600;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <h1>淬火温度计算器</h1>
+      </div>
+
+      <div class="tabs">
+        <button class="tab-button active" onclick="switchTab('basic')">基础计算</button>
+        <button class="tab-button" onclick="switchTab('advanced')">高级参数</button>
+      </div>
+
+      <!-- 基础计算 -->
+      <div id="basic-tab" class="tab-content active">
+        <div class="grid">
+          <div>
+            <h2 class="section-title">输入</h2>
+            <div class="card">
+              <div class="form-group">
+                <label class="label">碳含量 (%)</label>
+                <input class="input" id="carbonContent" placeholder="2.0" min="0.01" max="2.0" step="0.01" value="2.0" />
+              </div>
+              <div class="form-group">
+                <label class="label">钢材类别</label>
+                <select class="select" id="steelCategory">
+                  <option value="carbon">碳素钢</option>
+                  <option value="low-alloy">低合金钢</option>
+                  <option value="medium-alloy">中合金钢</option>
+                  <option value="high-alloy">高合金钢</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label class="label">工件形状复杂度</label>
+                <select class="select" id="workpieceShape">
+                  <option value="simple">简单（取上限温度）</option>
+                  <option value="complex">复杂（取下限温度）</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <h2 class="section-title">输出</h2>
+            <div class="card">
+              <div class="result-item" style="display: none">
+                <span class="result-label">Ac1 温度：</span>
+                <span class="result-value" id="basicAc1"></span>
+              </div>
+              <div class="result-item">
+                <span class="result-label">Ac3 温度：</span>
+                <span class="result-value" id="basicAc3"></span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="button-container">
+          <button class="calc-button" onclick="calculateBasic()">计算淬火温度</button>
+        </div>
+      </div>
+
+      <!-- 高级参数 -->
+      <div id="advanced-tab" class="tab-content">
+        <div class="grid">
+          <div>
+            <h2 class="section-title">合金元素含量</h2>
+            <div class="card">
+              <div class="grid-2">
+                <div class="form-group">
+                  <label class="label">C (%)</label>
+                  <input type="number" class="input" id="advC" placeholder="2.0" min="0" max="2" step="0.01" value="0.5" />
+                </div>
+                <div class="form-group">
+                  <label class="label">Mn (%)</label>
+                  <input type="number" class="input" id="advMn" placeholder="2.0" min="0" max="2" step="0.01" value="0.5" />
+                </div>
+                <div class="form-group">
+                  <label class="label">Ni (%)</label>
+                  <input type="number" class="input" id="advNi" placeholder="2.0" min="0" max="5" step="0.01" value="0.5" />
+                </div>
+                <div class="form-group">
+                  <label class="label">Cr (%)</label>
+                  <input type="number" class="input" id="advCr" placeholder="2.0" min="0" max="5" step="0.01" value="0.5" />
+                </div>
+                <div class="form-group">
+                  <label class="label">Mo (%)</label>
+                  <input type="number" class="input" id="advMo" placeholder="2.0" min="0" max="2" step="0.01" value="0.5" />
+                </div>
+                <div class="form-group">
+                  <label class="label">Si (%)</label>
+                  <input type="number" class="input" id="advSi" placeholder="2.0" min="0" max="2" step="0.01" value="0.5" />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <h2 class="section-title">马氏体转变温度</h2>
+            <div class="card">
+              <div class="result-item">
+                <span class="result-label">Ms点（马氏体开始温度）：</span>
+                <span class="result-value" id="advMs">727°C</span>
+              </div>
+              <div class="result-item">
+                <span class="result-label">Mf点（马氏体终止温度）：</span>
+                <span class="result-value" id="advMf">625°C</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="button-container">
+          <button class="calc-button" onclick="calculateAdvanced()">计算Ms点</button>
+        </div>
+      </div>
+
+      <!-- 使用说明 -->
+      <div class="info-grid">
+        <div class="info-card">
+          <h3 class="info-title">使用说明：</h3>
+          <div class="info-content">
+            <!-- <div>
+              •
+              <strong>Ac1：</strong>
+              加热时珠光体向奥氏体转变开始温度（约727°C）
+            </div> -->
+            <div>
+              •
+              <strong>Ac3：</strong>
+              亚共析钢加热时铁素体全部转变为奥氏体的温度
+            </div>
+            <div>
+              •
+              <strong>共析点：</strong>
+              0.77% C
+            </div>
+            <div>• 合金钢的淬火温度通常比碳钢高20-40°C</div>
+            <div>• Ms点越低，淬火应力越大，需要更谨慎的冷却工艺</div>
+          </div>
+        </div>
+
+        <div class="info-card">
+          <h3 class="info-title">推荐淬火温度：</h3>
+          <div class="info-content">
+            <div>• 淬火温度范围：757~777°C</div>
+            <div>• 推荐淬火温度：767°C</div>
+            <div>• 钢材类型：过共析钢（C = 2%）</div>
+            <div>• 低Ms点，建议采用等温淬火或马氏体分级淬火，避免开裂。</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      function switchTab(tabName) {
+        // 隐藏所有标签页内容
+        const tabContents = document.querySelectorAll('.tab-content');
+        tabContents.forEach((content) => content.classList.remove('active'));
+
+        // 移除所有按钮的活动状态
+        const tabButtons = document.querySelectorAll('.tab-button');
+        tabButtons.forEach((button) => button.classList.remove('active'));
+
+        // 显示选中的标签页内容
+        document.getElementById(tabName + '-tab').classList.add('active');
+
+        // 激活对应的按钮
+        event.target.classList.add('active');
+      }
+
+      function calculateBasic() {
+        const carbonContent = parseFloat(document.getElementById('carbonContent').value);
+        const steelCategory = document.getElementById('steelCategory').value;
+        const workpieceShape = document.getElementById('workpieceShape').value;
+
+        if (!carbonContent || carbonContent <= 0) {
+          alert('请输入有效的碳含量！');
+          return;
+        }
+
+        // 基础临界温度
+        const Ac1 = 727; // °C
+        const Ac3 = 912 - 203 * Math.sqrt(carbonContent); // 经验公式
+
+        // 合金钢调整
+        let tempAdjust = 0;
+        if (steelCategory === 'low-alloy') tempAdjust = 20;
+        else if (steelCategory === 'medium-alloy') tempAdjust = 30;
+        else if (steelCategory === 'high-alloy') tempAdjust = 40;
+
+        // 判断钢材类型
+        let baseTempFormula, tempRange;
+        if (carbonContent < 0.77) {
+          // 亚共析钢
+          baseTempFormula = Ac3 + tempAdjust;
+          if (workpieceShape === 'simple') {
+            tempRange = `${baseTempFormula + 30}~${baseTempFormula + 50}`;
+          } else {
+            tempRange = `${baseTempFormula + 30}~${baseTempFormula + 40}`;
+          }
+        } else if (carbonContent === 0.77) {
+          // 共析钢
+          baseTempFormula = Ac1 + tempAdjust;
+          tempRange = `${baseTempFormula + 30}~${baseTempFormula + 50}`;
+        } else {
+          // 过共析钢
+          baseTempFormula = Ac1 + tempAdjust;
+          if (workpieceShape === 'simple') {
+            tempRange = `${baseTempFormula + 30}~${baseTempFormula + 50}`;
+          } else {
+            tempRange = `${baseTempFormula + 30}~${baseTempFormula + 40}`;
+          }
+        }
+
+        // 更新显示结果
+        document.getElementById('basicAc1').textContent = Ac1 + '°C';
+        document.getElementById('basicAc3').textContent = Math.round(Ac3) + '°C';
+      }
+
+      function calculateAdvanced() {
+        const C = parseFloat(document.getElementById('advC').value) || 0;
+        const Mn = parseFloat(document.getElementById('advMn').value) || 0;
+        const Ni = parseFloat(document.getElementById('advNi').value) || 0;
+        const Cr = parseFloat(document.getElementById('advCr').value) || 0;
+        const Mo = parseFloat(document.getElementById('advMo').value) || 0;
+
+        if (C === 0) {
+          alert('请至少输入碳含量！');
+          return;
+        }
+
+        // 计算Ms点（经验公式）
+        const Ms = 539 - 423 * C - 30.4 * Mn - 17.7 * Ni - 12.1 * Cr - 7.5 * Mo;
+
+        // 估算Mf点（通常Ms - 200°C左右）
+        const Mf = Ms - 200;
+
+        // 更新显示结果
+        document.getElementById('advMs').textContent = Math.round(Ms) + '°C';
+        document.getElementById('advMf').textContent = Math.round(Mf) + '°C';
+      }
+
+      // 页面加载时执行初始计算
+      window.onload = function () {
+        calculateBasic();
+        calculateAdvanced();
+      };
+      //碳含量
+      const input = document.getElementById('carbonContent');
+
+      input.addEventListener('input', function (e) {
+        // 1. 保存当前光标位置
+        const cursorPosition = this.selectionStart;
+
+        // 2. 过滤非数字和小数点的字符
+        let value = this.value;
+        let newValue = '';
+        let dotCount = 0;
+
+        for (let i = 0; i < value.length; i++) {
+          const char = value[i];
+
+          // 允许数字
+          if (char >= '0' && char <= '9') {
+            newValue += char;
+          }
+          // 允许小数点，但只能有一个
+          else if (char === '.' && dotCount === 0) {
+            newValue += char;
+            dotCount = 1;
+          }
+        }
+
+        // 3. 限制小数点后最多两位
+        const parts = newValue.split('.');
+        if (parts.length === 2 && parts[1].length > 2) {
+          newValue = parts[0] + '.' + parts[1].substring(0, 2);
+        }
+
+        // 4. 检查是否以小数点开头，自动补0
+        if (newValue.startsWith('.')) {
+          newValue = '0' + newValue;
+        }
+
+        // 5. 应用新值
+        this.value = newValue;
+
+        // 6. 恢复光标位置（考虑删除字符的情况）
+        if (newValue.length < value.length && cursorPosition > 0) {
+          this.setSelectionRange(cursorPosition - 1, cursorPosition - 1);
+        } else {
+          this.setSelectionRange(cursorPosition, cursorPosition);
+        }
+      });
+
+      // 验证并限制最大值不超过2
+      input.addEventListener('blur', function () {
+        const value = parseFloat(this.value);
+
+        if (!isNaN(value)) {
+          if (value > 2) {
+            this.value = '2.00'; // 或直接 '2'
+          } else if (value < 0) {
+            this.value = '0';
+          } else {
+            // 格式化显示两位小数
+            this.value = value.toFixed(2);
+          }
+        } else if (this.value === '.') {
+          this.value = '0.00';
+        } else if (this.value === '' || this.value === '-') {
+          this.value = '0.00';
+        }
+      });
+
+      // 粘贴处理
+      input.addEventListener('paste', function (e) {
+        e.preventDefault();
+        const pastedText = (e.clipboardData || window.clipboardData).getData('text');
+
+        // 过滤粘贴内容
+        let filtered = '';
+        let dotCount = 0;
+
+        for (let i = 0; i < pastedText.length; i++) {
+          const char = pastedText[i];
+          if (char >= '0' && char <= '9') {
+            filtered += char;
+          } else if (char === '.' && dotCount === 0) {
+            filtered += char;
+            dotCount = 1;
+          }
+        }
+
+        // 插入到当前光标位置
+        const startPos = this.selectionStart;
+        const endPos = this.selectionEnd;
+        const currentValue = this.value;
+
+        this.value = currentValue.substring(0, startPos) + filtered + currentValue.substring(endPos);
+
+        // 触发input事件进行进一步处理
+        this.dispatchEvent(new Event('input'));
+      });
+    </script>
+  </body>
+</html>

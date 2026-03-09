@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>硬度转化小应用</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        margin: 0;
+        background-color: #f0f2f5;
+        padding: 20px;
+      }
+
+      .container {
+        background-color: #fff;
+        padding: 30px;
+        border-radius: 10px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        width: 100%;
+        max-width: 1000px;
+      }
+
+      h2 {
+        text-align: center;
+        color: #333;
+        margin-bottom: 30px;
+        font-size: 28px;
+      }
+
+      .form-group {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 25px;
+        align-items: center;
+      }
+
+      .swap-button {
+        margin: 0 20px;
+        background: none;
+        border: none;
+        cursor: pointer;
+        transition: transform 0.3s ease;
+        padding: 5px;
+      }
+
+      .swap-button img {
+        width: 50px;
+        height: 50px;
+        object-fit: contain;
+      }
+
+      .swap-button:hover {
+        transform: rotate(180deg);
+      }
+
+      select {
+        padding: 14px;
+        border: 1px solid #ccc;
+        border-radius: 6px;
+        width: 280px;
+        font-size: 16px;
+        background-color: #f8f9fa;
+      }
+
+      /* 放大数值输入区域 */
+      .value-inputs {
+        margin-top: 20px;
+        display: flex;
+        justify-content: space-between;
+        gap: 40px;
+      }
+
+      .value-inputs input {
+        position: static;
+        left: 0px;
+        top: 64px;
+        width: 524px;
+        height: 200px;
+        border-radius: 8px;
+        opacity: 1;
+
+        background: #ffffff;
+
+        box-sizing: border-box;
+        /* primary/--el-color-primary-light-5 */
+        border: 1px solid #a7c4ff;
+
+        z-index: 1;
+      }
+
+      /* 修改开始转化按钮样式 */
+      #convertBtn {
+        /* 宽度设置为 30% */
+        width: 30%;
+        padding: 18px;
+        background-color: #007bff;
+        color: #fff;
+        border: none;
+        border-radius: 430px;
+        cursor: pointer;
+        font-size: 20px;
+        transition: background-color 0.3s ease;
+        /* 让按钮水平居中，需配合 display:block 或 display:flex 等块状元素特性 */
+        display: block;
+        margin: 0 auto;
+        margin-top: 25px;
+      }
+
+      #convertBtn:hover {
+        background-color: #0056b3;
+      }
+
+      .tips {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 25px;
+        padding: 18px;
+        background-color: #f8f9fa;
+        border-radius: 8px;
+        color: #333;
+        font-size: 18px;
+        min-height: 28px;
+        line-height: 1.5;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="container">
+      <h2>硬度转化工具</h2>
+
+      <!-- 单位选择区域：左边默认选HK，右边默认选HV -->
+      <div class="form-group">
+        <select id="leftUnit" onchange="updateRemark()">
+          <!-- 左边：努氏硬度(HK)添加selected属性，默认选中 -->
+          <option value="HK" selected>努氏硬度(HK)</option>
+          <option value="HV">维氏硬度(HV)</option>
+          <option value="HB">布氏硬度(HB)</option>
+          <option value="HRC">洛氏硬度(HRC)</option>
+        </select>
+
+        <!-- 右边下拉框：维氏硬度(HV)添加selected属性，默认选中 -->
+        <select id="rightUnit" onchange="updateRemark()">
+          <option value="HK">努氏硬度(HK)</option>
+          <option value="HV" selected>维氏硬度(HV)</option>
+          <option value="HB">布氏硬度(HB)</option>
+          <option value="HRC">洛氏硬度(HRC)</option>
+        </select>
+      </div>
+
+      <!-- 数值输入区域（放大版本） -->
+      <div class="value-inputs">
+        <input type="number" id="leftValue" placeholder="输入数值" step="any" />
+        <!-- 交换按钮 -->
+        <button class="swap-button" onclick="swapUnits()">
+          <img src="image/transformation.png" alt="交换单位" />
+        </button>
+        <input type="number" id="rightValue" placeholder="结果" disabled step="any" />
+      </div>
+
+      <!-- 备注信息 -->
+      <div class="tips">
+        <div id="remark"></div>
+        <div>基于 ISO 18265 标准</div>
+      </div>
+
+      <!-- 转换按钮 -->
+      <button id="convertBtn" onclick="convert()">开始转化</button>
+    </div>
+
+    <script>
+      // 转换规则映射表
+      const conversionRules = {
+        // 'HK→HV': {
+        //   formula: (value) => value * 0.968,
+        //   remark: '适用范围：HK越大越难'
+        // },
+        // 'HV→HRC': {
+        //   formula: (value) => (value - 223) / 5.7,
+        //   remark: '使用范围：HV：400-700'
+        // },
+        // 'HB→HRC': {
+        //   formula: (value) => (value - 100) / 6,
+        //   remark: '使用范围：HB：200-400'
+        // },
+        // 'HV→HB': {
+        //   formula: (value) => value / 1.05,
+        //   remark: '使用范围：HV：0-500'
+        // },
+        // 'HRC→HK': {
+        //   formula: (value) => value * 6.4 + 100,
+        //   remark: '使用范围：HRC：30-60'
+        // }
+
+        'HK→HK': {
+          formula: value => value,
+          remark: '处于同单位下转化，结果不变',
+        },
+        'HK→HV': {
+          formula: value => value * 0.962,
+          remark: '适用范围：HK越大越难',
+        },
+        'HK→HB': {
+          formula: value => value * 0.915,
+          remark: '适用于 HB < 600',
+        },
+        'HK→HRC': {
+          formula: value => 115 - 215000 / Math.pow(value, 1.2),
+          remark: '适用于 HK > 250，即 HRC > 20',
+        },
+
+        'HV→HV': {
+          formula: value => value,
+          remark: '处于同单位下转化，结果不变',
+        },
+        'HV→HK': {
+          formula: value => value * 1.04,
+          remark: '',
+        },
+        'HV→HB': {
+          formula: value => value * 0.95,
+          remark: '仅适用于 HV < 600。超过此值布氏压头会变形，不再准确',
+        },
+        'HV→HRC': {
+          formula: value => 116 - 1500 / Math.sqrt(value),
+          remark: '在 HRC 20-65 范围内与 ISO 数据极其吻合',
+        },
+
+        'HB→HB': {
+          formula: value => value,
+          remark: '处于同单位下转化，结果不变',
+        },
+        'HB→HV': {
+          formula: value => value * 1.052,
+          remark: '',
+        },
+        'HB→HK': {
+          formula: value => value * 1.095,
+          remark: '',
+        },
+        'HB→HRC': {
+          formula: value => 116 - 1460 / Math.sqrt(value),
+          remark: '在 HRC 20-65 范围内与 ISO 数据极其吻合',
+        },
+
+        'HRC→HRC': {
+          formula: value => value,
+          remark: '处于同单位下转化，结果不变',
+        },
+        'HRC→HV': {
+          formula: value => 0.16 * Math.pow(value, 2) + 13.5 * value + 113,
+          remark: '使用范围：HRC：30-60',
+        },
+        'HRC→HB': {
+          formula: value => 0.15 * Math.pow(value, 2) + 12.8 * value + 107,
+          remark: '注意 HRC > 55 时 HB 已无实际意义',
+        },
+        'HRC→HK': {
+          formula: value => 0.165 * Math.pow(value, 2) + 14.0 * value + 117,
+          remark: '使用范围：HRC：30-60',
+        },
+      };
+
+      // 初始化备注信息（此时默认选中HK→HV，会自动显示对应备注）
+      updateRemark();
+
+      // 交换左右单位
+      function swapUnits() {
+        const leftUnit = document.getElementById('leftUnit');
+        const rightUnit = document.getElementById('rightUnit');
+
+        // 交换值
+        const temp = leftUnit.value;
+        leftUnit.value = rightUnit.value;
+        rightUnit.value = temp;
+
+        // 交换输入值
+        const leftValue = document.getElementById('leftValue');
+        const rightValue = document.getElementById('rightValue');
+
+        if (rightValue.value) {
+          leftValue.value = rightValue.value;
+          rightValue.value = '';
+        }
+
+        // 更新备注
+        updateRemark();
+      }
+
+      // 更新备注信息
+      function updateRemark() {
+        const leftUnit = document.getElementById('leftUnit').value;
+        const rightUnit = document.getElementById('rightUnit').value;
+        const remarkElement = document.getElementById('remark');
+        const key = `${leftUnit}→${rightUnit}`;
+        
+        // 获取触发事件的元素（仅在事件触发时存在）
+        if (event) {
+          const eventTarget = event.target;
+          
+          // 清空输入框逻辑
+          if (eventTarget.id === 'leftUnit') {
+            // 左侧选择框更换选项时，清空两个输入框
+            document.getElementById('leftValue').value = '';
+            document.getElementById('rightValue').value = '';
+          } else if (eventTarget.id === 'rightUnit') {
+            // 右侧选择框更换选项时，清空右侧输入框
+            document.getElementById('rightValue').value = '';
+          }
+        }
+
+        // 检查是否有对应的转换规则
+        if (conversionRules[key]) {
+          remarkElement.textContent = conversionRules[key].remark;
+        } else {
+          remarkElement.textContent = '请选择有效的转换组合';
+        }
+      }
+
+      // 执行转换
+      function convert() {
+        const leftUnit = document.getElementById('leftUnit').value;
+        const rightUnit = document.getElementById('rightUnit').value;
+        const leftValue = parseFloat(document.getElementById('leftValue').value);
+        const rightValueElement = document.getElementById('rightValue');
+        const key = `${leftUnit}→${rightUnit}`;
+
+        // 验证输入
+        if (isNaN(leftValue)) {
+          alert('请输入有效的数值');
+          return;
+        }
+
+        // 验证转换规则是否存在
+        if (!conversionRules[key]) {
+          alert('请选择有效的转换组合');
+          return;
+        }
+
+        // 执行转换计算
+        const result = conversionRules[key].formula(leftValue);
+        rightValueElement.value = result.toFixed(2);
+      }
+    </script>
+  </body>
+</html>

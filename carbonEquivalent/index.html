@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>碳当量(CE)计算器</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+        background: #f5f7fa;
+        min-height: 100vh;
+        padding: 20px;
+      }
+
+      .container {
+        background: url('./image/page-bg.png') no-repeat center center;
+        background-size: cover;
+        border-radius: 16px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        padding: 32px;
+        max-width: 1200px;
+        width: 100%;
+        margin: 0 auto;
+      }
+
+      .header {
+        text-align: center;
+      }
+
+      .header h1 {
+        color: #1d2129;
+        font-size: 36px;
+        font-weight: 700;
+        font-family: Source Han Sans;
+        line-height: 54px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+      }
+
+      .main-content {
+        display: grid;
+        grid-template-columns: 1fr auto 1fr;
+        gap: 24px;
+        align-items: start;
+      }
+
+      /* Added styles for section titles outside boxes */
+      .section-wrapper {
+        display: flex;
+        flex-direction: column;
+      }
+
+      .section-title {
+        font-size: 20px;
+        font-weight: 500;
+        font-family: medium/Headline1-Medium;
+        color: #3d3d3d;
+        margin-bottom: 16px;
+      }
+
+      .input-section,
+      .output-section {
+        background: #ffffff;
+        border: 1px solid #a7c4ff;
+        border-radius: 8px;
+        padding: 16px;
+      }
+
+      .input-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 16px;
+      }
+
+      .input-group {
+        display: flex;
+        flex-direction: column;
+      }
+
+      .input-group label {
+        margin-bottom: 6px;
+        font-family: Alibaba PuHuiTi 2;
+        color: #717a87;
+        font-size: 14px;
+        line-height: 22px;
+        font-weight: 500;
+      }
+
+      .input-group input {
+        padding: 8px 12px;
+        border: 1px solid #e6e9f4;
+        font-family: Alibaba PuHuiTi 2;
+        font-weight: 400;
+        line-height: 22px;
+        border-radius: 6px;
+        font-size: 13px;
+        background-color: #ffffff;
+        color: #1d2129;
+      }
+
+      .input-group input:focus {
+        outline: none;
+        border-color: #4a9eff;
+        box-shadow: 0 0 0 3px rgba(74, 158, 255, 0.1);
+      }
+
+      .input-group input::placeholder {
+        color: #959ba5;
+      }
+
+      .arrow-section {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 20px 0;
+      }
+
+      .arrow {
+        width: 40px;
+        height: 40px;
+        background: #4a9eff;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 18px;
+      }
+
+      .swap-button {
+        display: flex;
+        justify-content: center;
+        margin: 0 20px;
+        background: none;
+        border: none;
+        cursor: pointer;
+        transition: transform 0.3s ease;
+        padding: 5px;
+      }
+
+      .swap-button img {
+        width: 50px;
+        height: 50px;
+        object-fit: contain;
+      }
+
+      .swap-button:hover {
+        transform: rotate(180deg);
+      }
+
+      .output-content {
+        min-height: 230px;
+      }
+
+      .output-placeholder {
+        font-weight: 400;
+        font-size: 14px;
+        line-height: 22px;
+        color: #3d3d3d;
+      }
+
+      .result-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 12px 0;
+        /* border-bottom: 1px solid #e1e8ed; */
+      }
+
+      .result-item:last-child {
+        border-bottom: none;
+      }
+
+      .result-label {
+        font-family: PingFang SC;
+        font-weight: 400;
+        font-size: 20px;
+        line-height: 28px;
+        color: #717a87;
+      }
+
+      .result-value {
+        font-family: HarmonyOS Sans;
+        font-size: 20px;
+        line-height: 28px;
+        font-weight: 500;
+        color: #3d3d3d;
+      }
+
+      .evaluation {
+        margin-top: 10px;
+        /* padding: 16px; */
+      }
+
+      .evaluation-title {
+        font-family: PingFang SC;
+        font-weight: 400;
+        font-size: 18px;
+        line-height: 28px;
+        color: #717a87;
+        margin-bottom: 8px;
+      }
+
+      .evaluation-text {
+        font-family: PingFang SC;
+        font-weight: 500;
+        font-size: 18px;
+        line-height: 26px;
+        color: #3d3d3d;
+      }
+
+      .button-group {
+        display: flex;
+        gap: 16px;
+        justify-content: center;
+        margin: 20px 0;
+      }
+
+      .btn {
+        padding: 12px 32px;
+        border-radius: 24px;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+        border: none;
+      }
+
+      .btn-primary {
+        background: #4a9eff;
+        color: white;
+      }
+
+      .btn-primary:hover {
+        background: #3b82f6;
+        transform: translateY(-1px);
+      }
+
+      .btn-secondary {
+        background: white;
+        color: #4a9eff;
+        border: 1px solid #4a9eff;
+      }
+
+      .btn-secondary:hover {
+        background: #f0f9ff;
+      }
+
+      .formula-section {
+        background-color: #f5f5fa;
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 24px;
+      }
+
+      .formula-card {
+        /* background: #fafbfc; */
+        padding: 20px;
+        /* border-radius: 8px;
+        border: 1px solid #e1e8ed; */
+      }
+
+      .formula-title {
+        font-family: medium/Headline3-Medium;
+        font-weight: 500;
+        font-size: 16px;
+        line-height: 24px;
+        color: #3d3d3d;
+        margin-bottom: 12px;
+      }
+
+      .formula-content {
+        font-family: 'Courier New', monospace;
+        font-size: 13px;
+        color: #374151;
+        line-height: 1.4;
+      }
+
+      .standards-section {
+        margin-top: 24px;
+        padding: 20px;
+        background: #fffbeb;
+        border: 1px solid #fbbf24;
+        border-radius: 8px;
+      }
+
+      .standards-title {
+        font-weight: 600;
+        color: #1a1a1a;
+        margin-bottom: 12px;
+      }
+
+      .standards-content {
+        font-size: 14px;
+        color: #374151;
+        line-height: 1.6;
+      }
+
+      .standards-content ul {
+        margin: 8px 0;
+        padding-left: 20px;
+      }
+
+      .standards-content li {
+        margin: 4px 0;
+      }
+
+      @media (max-width: 768px) {
+        .main-content {
+          grid-template-columns: 1fr;
+          gap: 20px;
+        }
+
+        .arrow-section {
+          transform: rotate(90deg);
+        }
+
+        .input-grid {
+          grid-template-columns: repeat(2, 1fr);
+        }
+
+        .formula-section {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <h1>碳当量（CE）计算器</h1>
+      </div>
+
+      <div class="main-content">
+        <!-- 输入区 -->
+        <div class="section-wrapper">
+          <div class="section-title">输入</div>
+          <div class="input-section">
+            <div class="input-grid">
+              <div class="input-group">
+          <label for="C">C (%)</label>
+          <input type="number" id="C" step="0.001" placeholder="请输入" min="0" />
+        </div>
+              <div class="input-group">
+          <label for="Si">Si (%)</label>
+          <input type="number" id="Si" step="0.001" placeholder="请输入" min="0" />
+        </div>
+              <div class="input-group">
+          <label for="Mn">Mn (%)</label>
+          <input type="number" id="Mn" step="0.001" placeholder="请输入" min="0" />
+        </div>
+              <div class="input-group">
+          <label for="Cu">Cu (%)</label>
+          <input type="number" id="Cu" step="0.001" placeholder="请输入" min="0" />
+        </div>
+              <div class="input-group">
+          <label for="Ni">Ni (%)</label>
+          <input type="number" id="Ni" step="0.001" placeholder="请输入" min="0" />
+        </div>
+              <div class="input-group">
+          <label for="Cr">Cr (%)</label>
+          <input type="number" id="Cr" step="0.001" placeholder="请输入" min="0" />
+        </div>
+              <div class="input-group">
+          <label for="Mo">Mo (%)</label>
+          <input type="number" id="Mo" step="0.001" placeholder="请输入" min="0" />
+        </div>
+              <div class="input-group">
+          <label for="V">V (%)</label>
+          <input type="number" id="V" step="0.001" placeholder="请输入" min="0" />
+        </div>
+              <div class="input-group">
+          <label for="B">B (ppm)</label>
+          <input type="number" id="B" step="0.001" placeholder="请输入" min="0" />
+        </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 居中按钮包裹层 -->
+        <div class="arrow-section">
+          <button class="swap-button">
+            <img src="image/transformation.png" alt="交换单位" />
+          </button>
+        </div>
+
+        <!-- 输出区 -->
+        <div class="section-wrapper">
+          <div class="section-title">输出（计算结果）</div>
+          <div class="output-section">
+            <div class="output-content">
+              <div id="output-placeholder" class="output-placeholder">请输入数值...</div>
+              <div id="result-content" style="display: none">
+                <div class="result-item">
+                  <span class="result-label">CE(IIW):</span>
+                  <span class="result-value" id="ceIIW">0.000</span>
+                </div>
+                <div class="result-item">
+                  <span class="result-label">CEQ(JIS):</span>
+                  <span class="result-value" id="ceqJIS">0.000</span>
+                </div>
+                <div class="result-item">
+                  <span class="result-label">Pcm:</span>
+                  <span class="result-value" id="pcm">0.000</span>
+                </div>
+                <div class="evaluation" id="evaluation">
+                  <div class="evaluation-title">焊接性评估：</div>
+                  <div class="evaluation-text" id="evaluationText"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 按钮组 -->
+      <div class="button-group">
+        <button class="btn btn-primary" onclick="calculate()">开始计算</button>
+        <button class="btn btn-secondary" onclick="clearInputs()">清除数据</button>
+      </div>
+
+      <!-- 计算公式 -->
+      <div class="formula-section">
+        <div class="formula-card">
+          <div class="formula-title">计算公式</div>
+          <div class="formula-content">
+            CEV: C + DOUDLE(Si/30) + DOUDLE(Mn/20) + DOUDLE(Cu/20) + DOUDLE(Ni/60) + DOUDLE(Cr/20) + DOUDLE(Mo/15) + DOUDLE(V/10) + DOUDLE(5*B)
+            <br />
+            <br />
+            CEQ(JIS): C + Mn/6 + (Cr+Mo+V)/5 + (Ni+Cu) / 15
+            <br />
+            <br />
+            C + 0.3*(Si+P) + 0.4*S - 0.03*Mn
+            <br />
+            <br />
+            PCM: C + Mn/6 + Ni/15 + Cr/5 + Cu/15 + Mo/5 + V/5
+          </div>
+        </div>
+
+        <div class="formula-card">
+          <div class="formula-title">焊接性评价标准：</div>
+          <div class="formula-content">
+            CE ≤ 0.40: 焊接性能优秀，一般不需预热
+            <br />
+            <br />
+            0.40 < CE ≤ 0.60: 焊接性能良好，需要采取控制措施
+            <br />
+            <br />
+            0.60 < CE ≤ 0.80: 焊接困难，需要严格的焊接工艺
+            <br />
+            <br />
+            CE > 0.80: 极难焊接，通常不建议焊接
+          </div>
+        </div>
+
+        <div class="formula-card">
+          <div class="formula-title">应用说明：</div>
+          <div class="formula-content">
+            CEV: C + DOUDLE(Si/30) + DOUDLE(Mn/20) + DOUDLE(Cu/20) + DOUDLE(Ni/60) + DOUDLE(Cr/20) + DOUDLE(Mo/15) + DOUDLE(V/10) + DOUDLE(5*B)
+            <br />
+            <br />
+            CEQ(JIS): C + Mn/6 + (Cr+Mo+V)/5 + (Ni+Cu) / 15
+            <br />
+            <br />
+            C + 0.3*(Si+P) + 0.4*S - 0.03*Mn
+            <br />
+            <br />
+            PCM: C + Mn/6 + Ni/15 + Cr/5 + Cu/15 + Mo/5 + V/5
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      function calculate() {
+        const C = parseFloat(document.getElementById('C').value) || 0;
+        const Si = parseFloat(document.getElementById('Si').value) || 0;
+        const Mn = parseFloat(document.getElementById('Mn').value) || 0;
+        const Cu = parseFloat(document.getElementById('Cu').value) || 0;
+        const Ni = parseFloat(document.getElementById('Ni').value) || 0;
+        const Cr = parseFloat(document.getElementById('Cr').value) || 0;
+        const Mo = parseFloat(document.getElementById('Mo').value) || 0;
+        const V = parseFloat(document.getElementById('V').value) || 0;
+        const B = parseFloat(document.getElementById('B').value) || 0;
+        
+        // 负数校验
+        const inputs = [
+          { name: '碳(C)', value: C },
+          { name: '硅(Si)', value: Si },
+          { name: '锰(Mn)', value: Mn },
+          { name: '铜(Cu)', value: Cu },
+          { name: '镍(Ni)', value: Ni },
+          { name: '铬(Cr)', value: Cr },
+          { name: '钼(Mo)', value: Mo },
+          { name: '钒(V)', value: V },
+          { name: '硼(B)', value: B }
+        ];
+        
+        const negativeInputs = inputs.filter(input => input.value < 0);
+        if (negativeInputs.length > 0) {
+          const negativeNames = negativeInputs.map(input => input.name).join(', ');
+          alert(`以下元素含量不能为负数：${negativeNames}`);
+          return;
+        }
+
+        // 计算CE(IIW)
+        const ceIIW = C + Mn / 6 + (Cu + Ni) / 15 + (Cr + Mo + V) / 5;
+
+        // 计算CEQ(JIS)
+        const ceqJIS = C + Mn / 6 + Si / 24 + Ni / 40 + Cr / 5 + Mo / 4 + V / 14;
+
+        // 计算Pcm (B以ppm为单位，需要转换为百分比)
+        const B_percent = B / 10000;
+        const pcm = C + Si / 30 + (Mn + Cu + Cr) / 20 + Ni / 60 + Mo / 15 + V / 10 + 5 * B_percent;
+
+        document.getElementById('output-placeholder').style.display = 'none';
+        document.getElementById('result-content').style.display = 'block';
+
+        // 显示结果
+        document.getElementById('ceIIW').textContent = ceIIW.toFixed(3);
+        document.getElementById('ceqJIS').textContent = ceqJIS.toFixed(3);
+        document.getElementById('pcm').textContent = pcm.toFixed(3);
+
+        // 评估焊接性
+        const evaluationText = document.getElementById('evaluationText');
+
+        if (ceIIW <= 0.4) {
+          evaluationText.textContent = '焊接性能优秀！一般不需要预热，可采用常规焊接工艺。';
+        } else if (ceIIW <= 0.6) {
+          evaluationText.textContent = '焊接性能良好，需要采取控制措施。';
+        } else if (ceIIW <= 0.8) {
+          evaluationText.textContent = '焊接困难，需要严格的焊接工艺。';
+        } else {
+          evaluationText.textContent = '极难焊接，通常不建议焊接。';
+        }
+      }
+
+      function clearInputs() {
+        const inputs = document.querySelectorAll('input[type="number"]');
+        inputs.forEach(input => (input.value = ''));
+
+        document.getElementById('output-placeholder').style.display = 'block';
+        document.getElementById('result-content').style.display = 'none';
+      }
+    </script>
+  </body>
+</html>

@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>造渣（石灰/白云石）计算器</title>
+  <link rel="stylesheet" href="index.css">
+</head>
+
+<body>
+  <div class="section">
+    <div class="container">
+      <div class="header">
+        <div class="logo-container">
+          <img src="icon.svg" alt="造渣（石灰/白云石）计算器" class="logo">
+          <h1>造渣（石灰/白云石）计算器</h1>
+        </div>
+      </div>
+      <div class="main-content">
+        <!-- 输入区域 -->
+        <div class="input-section-container">
+          <div style="height: 40px;display: flex ; justify-content: space-between; align-items: center;">
+            <p class="section-title">输入</span></p>
+            <div class="header-actions">
+              <button class="btn" id="btnExample">填入示例</button>
+            </div>
+          </div>
+          <div class="input-section">
+            <div class="input-fields">
+              <div class="field">
+                <label>钢水量（t）</label>
+                <input type="number" id="steelTon" step="0.1" value="150">
+                <div class="hint">用于从“Si%差值”推算 SiO₂（可选）。</div>
+              </div>
+              <div class="field">
+                <label>渣量输入方式</label>
+                <select id="slagMode">
+                  <option value="kgt">按 kg/t</option>
+                  <option value="kg">按炉次总 kg</option>
+                </select>
+              </div>
+              <div class="field">
+                <label>预计渣量（kg/t 或 kg）</label>
+                <input type="number" id="slagValue" step="1" value="120">
+                <div class="hint">这是本 App 的关键输入：MgO% 需要渣总量才能计算。</div>
+              </div>
+              <div class="field">
+                <label>SiO₂ 负荷来源</label>
+                <select id="sio2Mode">
+                  <option value="direct">直接输入 SiO₂（kg）</option>
+                  <option value="fromSi">由 Si%差值推算（Si→SiO₂）</option>
+                </select>
+              </div>
+            </div>
+
+            <div id="sio2Direct" class="input-fields">
+              <div class="field">
+                <label>预计进入渣的 SiO₂（kg）</label>
+                <input type="number" id="sio2Kg" step="1" value="3500">
+                <div class="hint">如果你有经验统计或上游计算结果，推荐直接填这里。</div>
+              </div>
+            </div>
+
+            <div id="sio2FromSi" class="input-fields" style="display: none;">
+              <div class="field">
+                <label>入炉金属平均 Si（%）</label>
+                <input type="number" id="siIn" step="0.001" value="0.40">
+              </div>
+              <div class="field">
+                <label>目标钢 Si（%）</label>
+                <input type="number" id="siTarget" step="0.001" value="0.02">
+              </div>
+            </div>
+
+            <div class="input-fields">
+              <div class="field">
+                <label>目标碱度 B=CaO/SiO₂（最小）</label>
+                <input type="number" id="bMin" step="0.1" value="2.8">
+              </div>
+              <div class="field">
+                <label>目标碱度（最大）</label>
+                <input type="number" id="bMax" step="0.1" value="3.2">
+              </div>
+              <div class="field">
+                <label>目标 MgO%（最小）</label>
+                <input type="number" id="mgoMin" step="0.1" value="8.0">
+              </div>
+              <div class="field">
+                <label>目标 MgO%（最大）</label>
+                <input type="number" id="mgoMax" step="0.1" value="10.0">
+              </div>
+            </div>
+
+            <div class="material-params">
+              <h3>材料参数（可保存为厂内默认）</h3>
+              <div class="input-fields">
+                <div class="field">
+                  <label>石灰 · 有效 CaO（%）</label>
+                  <input type="number" id="limeCaO" step="0.1" value="85">
+                </div>
+                <div class="field">
+                  <label>石灰 · MgO（%）</label>
+                  <input type="number" id="limeMgO" step="0.1" value="2.0">
+                </div>
+                <div class="field">
+                  <label>石灰单价（元/吨，可选）</label>
+                  <input type="number" id="limePrice" step="1" value="350">
+                </div>
+                <div class="field">
+                  <label>白云石 · CaO（%）</label>
+                  <input type="number" id="doloCaO" step="0.1" value="30">
+                </div>
+                <div class="field">
+                  <label>白云石 · MgO（%）</label>
+                  <input type="number" id="doloMgO" step="0.1" value="20">
+                </div>
+                <div class="field">
+                  <label>白云石单价（元/吨，可选）</label>
+                  <input type="number" id="doloPrice" step="1" value="300">
+                </div>
+              </div>
+              <div class="input-fields" style="grid-template-columns: 1fr;">
+                <div class="field">
+                  <label>炉衬/其它来源带入 MgO（kg，可选）</label>
+                  <input type="number" id="mgoOtherKg" step="1" value="0">
+                  <div class="hint">工程提示：碱度是常用渣系指标；“Slag Basicity: What Does It Mean?” 对碱度概念做过专门讨论（不同定义、适用场景）。</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- 输出区域 -->
+        <div class="output-section-container">
+          <div style="height: 40px;display: flex ; justify-content: space-between; align-items: center;">
+            <p class="section-title">输出（计算结果）</p>
+          </div>
+          <div class="output-section">
+            <div class="result-table-container">
+              <table class="result-table" id="resultTable">
+                <thead>
+                  <tr>
+                    <th>项目</th>
+                    <th>数值</th>
+                  </tr>
+                </thead>
+                <tbody class="resultTableBody" id="resultTableBody">
+                  <!-- 计算结果将动态生成 -->
+                </tbody>
+              </table>
+            </div>
+            <div class="summary">
+              <h3>结论：</h3>
+              <!-- 计算汇总将动态生成 -->
+              <div id="summary">
+                <p>点击“计算”生成结果。</p>
+              </div>
+            </div>
+            <div class="warnings">
+              <h3>告警与校验：</h3>
+              <!-- 告警信息将动态生成 -->
+              <div id="warnings">
+                <p>无明显问题</p>
+              </div>
+            </div>
+            <div class="hint">
+              说明：本 App 假设“Si 去除生成 SiO₂ 且进入渣”。如果你们矿石脉石、回炉渣等会带来额外 SiO₂，请在 SiO₂ 负荷里体现。
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="calculation-buttons">
+        <button class="btn primary" id="btnCalcMid">开始计算</button>
+        <button class="btn secondary" id="btnClear">清除数据</button>
+      </div>
+      <div class="footer">
+        <h3>公式与术语：</h3>
+        <p>本 App 做什么：在给定 SiO₂ 负荷与渣量的前提下，计算石灰/白云石用量，使碱度与 MgO% 落入目标窗口。</p>
+
+        <div class="formula">
+          <p>(1) Si → SiO₂（可选推算）</p>
+          <p>SiO₂(kg) = Si_removed(kg) × 60/28</p>
+          <p>Si_removed(kg) = (Si_in% - Si_target%) / 100 × m_steel(kg)</p>
+          <p>&nbsp;</p>
+          <p>(2) 碱度定义</p>
+          <p>B = CaO / SiO₂ ⇒ CaO_required = B_target × SiO₂</p>
+          <p>&nbsp;</p>
+          <p>(3) MgO 目标</p>
+          <p>MgO_required(kg) = MgO_target%/100 × m_slag(kg)</p>
+          <p>&nbsp;</p>
+          <p>(4) 由石灰/白云石提供 CaO、MgO</p>
+          <p>CaO = L×CaO_eff + D×CaO_dolo</p>
+          <p>MgO = L×MgO_lime + D×MgO_dolo + MgO_other</p>
+          <p>&nbsp;</p>
+          <p>解 2×2 线性方程得到 L（石灰kg）与 D（白云石kg）。</p>
+        </div>
+
+        <ul>
+          <li>碱度 B：常用指标，常见定义为 CaO/SiO₂（质量比）。不同书/厂也可能用其它定义，因此建议固定厂内口径。</li>
+          <li>有效 CaO：石灰并非 100% CaO，有效 CaO 用来反映真正参与造渣的 CaO 份额。</li>
+          <li>为什么需要渣量：因为 MgO% 是“占渣总质量的百分比”，没有渣总量就无法确定 MgO 需要多少 kg。</li>
+        </ul>
+
+        <p><strong>注意：</strong></p>
+        &nbsp;
+        <p>本 App 是“快速造渣估算器”，不包含 FeO/TFe、脱磷动力学等耦合。适合现场快速估算与对比方案。</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- 提示框 -->
+  <div class="toast" id="toast" style="display: none;">
+    <h4 id="toastTitle"></h4>
+    <p id="toastMsg"></p>
+  </div>
+
+  <script src="index.js"></script>
+</body>
+
+</html>

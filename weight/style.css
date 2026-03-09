@@ -1,0 +1,135 @@
+body {
+  font-family: Arial, sans-serif;
+  background-color: #f0f0f0;
+  text-align: center;
+  padding: 20px;
+}
+
+h1 {
+  margin-bottom: 50px;
+}
+
+.steel-types {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-start; /* 让内容从行开头排列，也可根据需求用 center 等 */
+  gap: 20px;
+  /* 计算每个项目基础宽度，一行五个，要考虑间隙，这里做简单适配 */
+  /* 假设父容器宽度适配，通过 calc 计算单个项目宽度，留出间隙空间 */
+}
+
+.steel-item {
+  /* 计算宽度，一行五个，总间隙是 4 个（因为五个项目之间有四个间隙），所以用 calc 减去间隙占的宽度 */
+  /* 100% 除以 5 再减去间隙的平均占比，让一行刚好放五个 */
+  flex: 0 0 calc(20% - 16px); 
+  max-width: calc(20% - 16px);
+  box-sizing: border-box;
+}
+
+/* .steel-item {
+  width: 120px;
+  height: 120px;
+  background-color: #fff;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 16px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+} */
+
+.steel-item:hover {
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  transform: translateY(-2px);
+}
+
+.modal {
+  display: none;
+  position: fixed;
+  z-index: 1;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  background-color: rgba(0, 0, 0, 0.4);
+}
+
+.modal-content {
+  background-color: #fefefe;
+  margin: 10% auto;
+  padding: 20px;
+  border: 1px solid #888;
+  border-radius: 8px;
+  position: relative;
+  min-width: 340px;      /* 最小宽度，防止内容太窄 */
+  max-width: 90vw;       /* 最大宽度不超过视口宽度 */
+  width: 600px;          /* 默认宽度，可根据实际调整 */
+  box-sizing: border-box;
+  overflow-x: auto;      /* 横向滚动，防止内容溢出 */
+}
+
+.close {
+  color: #aaa;
+  float: right;
+  font-size: 28px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.close:hover,
+.close:focus {
+  color: black;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.modal-body {
+  margin-top: 20px;
+}
+
+form {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 15px;
+}
+
+label {
+  font-weight: bold;
+}
+
+input {
+  padding: 8px;
+  width: 200px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+button {
+  padding: 10px 20px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+button:hover {
+  background-color: #0056b3;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+}
+
+th,
+td {
+  border: 1px solid #ccc;
+  padding: 8px;
+  text-align: left;
+}

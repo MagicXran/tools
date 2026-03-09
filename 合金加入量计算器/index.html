@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>合金加入量计算器</title>
+  <link rel="stylesheet" href="index.css">
+</head>
+
+<body>
+  <div class="section">
+ <div class="container">
+    <div class="header">
+      <div class="logo-container">
+        <img src="icon.svg" alt="合金加入量计算器" class="logo">
+        <h1>合金加入量计算器</h1>
+      </div>
+    </div>
+    <div class="main-content">
+      <!-- 输入区域 -->
+      <div class="input-section-container">
+        <div style="height: 40px;display: flex ; justify-content: space-between; align-items: center;">
+          <p class="section-title">输入</span></p>
+          <div class="header-actions">
+            <button class="btn" id="btnExample">填入示例</button>
+          </div>
+        </div>
+        <div class="input-section">
+          <div class="input-fields">
+            <div class="field">
+              <label>钢水量（t）</label>
+              <input type="number" id="steelTon" step="0.1" value="150">
+            </div>
+            <div class="field">
+              <label>回收率不确定度（±%点）</label>
+              <input type="number" id="recUnc" step="0.5" value="5">
+            </div>
+          </div> 
+          <div class="table-actions">
+            <h3>合金列表</h3>
+            <button class="btn" id="btnAddAlloy">添加合金行</button>
+          </div>
+          <div class="table-container">
+            <table class="alloy-table" id="alloyTable">
+              <thead>
+                <tr>
+                  <th>合金名称</th>
+                  <th>元素</th>
+                  <th>元素含量（%）</th>
+                  <th>回收率（%）</th>
+                  <th>当前成分（%）</th>
+                  <th>目标成分（%）</th>
+                  <th>单价（元/吨）</th>
+                  <th>操作</th>
+                </tr>
+              </thead>
+              <tbody id="alloyTableBody">
+                <!-- 动态生成行 -->
+              </tbody>
+            </table>
+          </div>
+          <div class="hint">
+            提示：如果目标成分 ≤ 当前成分，本行会自动计算为“无需加入（0 kg）”。
+          </div>
+        </div>
+      </div>
+      <!-- 输出区域 -->
+      <div class="output-section-container">
+        <div style="height: 40px;display: flex ; justify-content: space-between; align-items: center;">
+        <p class="section-title">输出（计算结果）</p></div>
+        <div class="output-section">
+          <div class="result-table-container">
+            <table class="result-table" id="resultTable">
+              <thead>
+                <tr>
+                  <th>合金</th>
+                  <th>元素</th>
+                  <th>需要补的元素（kg）</th>
+                  <th>合金加入量（kg）</th>
+                  <th>区间（kg）</th>
+                  <th>成本（元）</th>
+                </tr>
+              </thead>
+              <tbody class="resultTableBody" id="resultTableBody">
+                <!-- 计算结果将动态生成 -->
+              </tbody>
+            </table>
+          </div>
+          <div class="summary">
+            <h3>结论：</h3>
+            <!-- 计算汇总将动态生成 -->
+            <div id="summary">
+              <p>点击“计算”生成结果。</p>
+            </div>
+          </div>
+          <div class="warnings">
+            <h3>告警与校验：</h3>
+            <!-- 告警信息将动态生成 -->
+            <div id="warnings">
+              <p>无明显问题</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="calculation-buttons">
+      <button class="btn primary" id="btnCalculate">开始计算</button>
+      <button class="btn secondary" id="btnClear">清除数据</button>
+    </div>
+    <div class="footer">
+      <h3>公式与术语：</h3>
+      <p>目标：根据“当前成分 → 目标成分”的差值，计算需要补充的元素质量，并换算为合金加入量。</p>
+      
+      <div class="formula">
+        <p>m_element_needed (kg) = (target% - current%) / 100 × m_steel(kg)</p>
+        <p>m_alloy (kg) = m_element_needed / (recovery × alloy_element_fraction)</p>
+        <p>其中：</p>
+        <p>recovery = 回收率（0~1）</p>
+        <p>alloy_element_fraction = 合金中该元素含量（0~1）</p>
+      </div>
+      
+      <ul>
+        <li>回收率（Recovery）：加入的元素最终进入钢水并被“保留”的比例。例如加入 100 kg Mn，最终钢水只增加了 85 kg Mn，则回收率约 85%。</li>
+        <li>元素含量：合金中有效元素所占百分比。例如 FeMn75 表示 Mn 含量约 75%。</li>
+        <li>区间（kg）：把回收率按“不确定度”上下浮动，给出加入量的低/高范围，便于现场做安全裕度。</li>
+      </ul>
+      
+      <p><strong>注意：</strong></p>
+      &nbsp;
+      <p>如果目标≤当前，则无需加入（计算为 0）。如果回收率或含量为 0，会提示输入错误。</p>
+    </div>
+  </div>
+  </div>
+ 
+  <!-- 提示框 -->
+  <div class="toast" id="toast" style="display: none;">
+    <h4 id="toastTitle"></h4>
+    <p id="toastMsg"></p>
+  </div>
+
+  <script src="index.js"></script>
+</body>
+
+</html>

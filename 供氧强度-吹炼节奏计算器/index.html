@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>供氧强度/吹炼节奏计算器</title>
+  <link rel="stylesheet" href="index.css">
+</head>
+
+<body>
+  <div class="section">
+    <div class="container">
+      <div class="header">
+        <div class="logo-container">
+          <img src="icon.svg" alt="供氧强度/吹炼节奏计算器" class="logo">
+          <h1>供氧强度/吹炼节奏计算器</h1>
+        </div>
+      </div>
+      <div class="main-content">
+        <!-- 输入区域 -->
+        <div class="input-section-container">
+          <div style="height: 40px;display: flex ; justify-content: space-between; align-items: center;">
+            <p class="section-title">输入</p>
+            <div class="header-actions">
+              <button class="btn" id="btnExample">填入示例</button>
+            </div>
+          </div>
+          <div class="input-section">
+            <div class="input-fields">
+              <div class="field">
+                <label>炉次吨位 T（t）</label>
+                <input type="number" id="ton" step="0.1" value="150">
+                <div class="hint">供氧强度 I 的分母口径可按厂内习惯固定（吨钢/金属装入量）。这里默认用出钢吨位。</div>
+              </div>
+              <div class="field">
+                <label>计算方式</label>
+                <select id="mode">
+                  <option value="total">按总耗氧量 + 时间</option>
+                  <option value="schedule">按分段吹炼计划</option>
+                </select>
+              </div>
+            </div>
+
+            <div id="panelTotal" style="margin-top:10px;">
+              <div class="input-fields">
+                <div class="field">
+                  <label>总耗氧量 V（Nm³）</label>
+                  <input type="number" id="V" step="1" value="18000">
+                </div>
+                <div class="field">
+                  <label>吹炼时间 t（min）</label>
+                  <input type="number" id="t" step="0.1" value="16">
+                </div>
+              </div>
+              <div class="hint">系统会计算平均流量 Q=V/t 以及供氧强度 I=Q/T。</div>
+            </div>
+
+            <div id="panelSchedule" style="display:none; margin-top:10px;">
+              <div class="actions">
+                <button class="btn secondary" id="btnAddStage" type="button">+ 添加阶段</button>
+                <button class="btn secondary" id="btnExampleSchedule" type="button">填入示例计划</button>
+              </div>
+              <div class="hr"></div>
+              <div style="overflow:auto;">
+                <table class="result-table" id="tblStage">
+                  <thead>
+                    <tr>
+                      <th style="min-width:140px;">阶段</th>
+                      <th style="min-width:140px;">时长（min）</th>
+                      <th style="min-width:180px;">流量 Q（Nm³/min）</th>
+                      <th>操作</th>
+                    </tr>
+                  </thead>
+                  <tbody id="tbodyStage"></tbody>
+                </table>
+              </div>
+              <div class="hint" style="margin-top:10px;">
+                说明：总耗氧量 V=Σ(Qᵢ×tᵢ)，总时间 t=Σtᵢ，平均 Q=V/t。
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- 输出区域 -->
+        <div class="output-section-container">
+          <div style="height: 40px;display: flex ; justify-content: space-between; align-items: center;">
+            <p class="section-title">输出（计算结果）</p>
+          </div>
+          <div class="output-section">
+            <div class="result-table-container">
+              <table class="result-table" id="resultTable">
+                <thead>
+                  <tr>
+                    <th>项目</th>
+                    <th>数值</th>
+                  </tr>
+                </thead>
+                <tbody class="resultTableBody" id="resultTableBody">
+                  <!-- 计算结果将动态生成 -->
+                </tbody>
+              </table>
+            </div>
+            <div class="summary" id="summary">
+              <!-- 计算汇总将动态生成 -->
+            </div>
+            <div class="warnings" id="warnings">
+              <!-- 告警信息将动态生成 -->
+            </div>
+            <div class="hint">
+              说明：本 App 仅做基本量纲核算（流量、强度、分段汇总）。实际工艺窗口（强度上限/下限）需按你们炉型与钢种建立。
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="calculation-buttons">
+        <button class="btn primary" id="btnCalculate">开始计算</button>
+        <button class="btn secondary" id="btnClear">清除数据</button>
+      </div>
+      <div class="footer">
+        <h3>公式与术语：</h3>
+        <p>核心公式：平均氧气流量与供氧强度。</p>
+
+        <div class="formula">
+          <p>Q (Nm³/min) = V / t</p>
+          <p>I (Nm³/min/t) = Q / T</p>
+          <p>其中：</p>
+          <p>V = 总耗氧量（Nm³）</p>
+          <p>t = 吹炼时间（min）</p>
+          <p>T = 炉次吨位（t，口径可按厂内规定）</p>
+        </div>
+
+        <ul>
+          <li>供氧强度：单位吨位的氧气流量，用于快速比较“吹得猛不猛”。</li>
+          <li>分段吹炼计划：把吹炼分成若干段，每段有不同流量 Qi 与时长 ti。总耗氧量 V=ΣQi·ti。</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- 提示框 -->
+  <div class="toast" id="toast" style="display: none;">
+    <h4 id="toastTitle"></h4>
+    <p id="toastMsg"></p>
+  </div>
+
+  <script src="index.js"></script>
+</body>
+
+</html>

@@ -277,7 +277,7 @@
           <div class="input-section">
             <div class="input-grid">
               <div class="input-group">
-                <label>工作辊径 R (mm)</label>
+                <label>工作辊半径 R (mm)</label>
                 <input type="number" id="R" step="0.1" placeholder="请输入" min="0" value="450" />
               </div>
               <div class="input-group">
@@ -363,7 +363,7 @@
         <div class="formula-card">
           <div class="formula-title">参数说明</div>
           <div class="formula-content">
-            R — 工作辊半径，热轧板带一般 300~600mm<br><br>
+            R — 工作辊半径，不是直径；热轧板带一般 300~600mm<br><br>
             H / h — 轧件入口 / 出口厚度<br><br>
             K_f — 变形抗力，热轧一般 80~250 MPa<br><br>
             μ — 摩擦系数，热轧 0.25~0.45，冷轧 0.03~0.10<br><br>
@@ -383,6 +383,7 @@
       </div>
     </div>
 
+    <script src="../shared/rolling-formulas.js"></script>
     <script>
       function calculate() {
         var R = parseFloat(document.getElementById('R').value);
@@ -395,7 +396,7 @@
         if (isNaN(R) || isNaN(H) || isNaN(h) || isNaN(b) || isNaN(Kf) || isNaN(mu)) {
           alert('请填写所有输入参数'); return;
         }
-        if (R <= 0) { alert('工作辊径 R 必须大于 0'); return; }
+        if (R <= 0) { alert('工作辊半径 R 必须大于 0'); return; }
         if (H <= 0) { alert('入口厚度 H 必须大于 0'); return; }
         if (h <= 0) { alert('出口厚度 h 必须大于 0'); return; }
         if (H <= h) { alert('入口厚度 H 必须大于出口厚度 h'); return; }
@@ -403,20 +404,28 @@
         if (Kf <= 0) { alert('变形抗力 K_f 必须大于 0'); return; }
         if (mu <= 0) { alert('摩擦系数 μ 必须大于 0'); return; }
 
-        var deltaH = H - h;
-        var epsilon = (deltaH / H) * 100;
-        var ld = Math.sqrt(R * deltaH);
-        var Qp = 1 + 1.6 * mu * Math.sqrt(R * deltaH) / (H + h) - 1.2 * deltaH / (H + h);
-        var P = Kf * Qp * b * ld / 1000;
+        var result;
+        try {
+          result = RollingFormulas.rollingForce({
+            rollRadius: R,
+            entryThickness: H,
+            exitThickness: h,
+            width: b,
+            flowStress: Kf,
+            frictionCoefficient: mu
+          });
+        } catch (error) {
+          alert(error.message); return;
+        }
 
         document.getElementById('output-placeholder').style.display = 'none';
         document.getElementById('result-content').style.display = 'block';
 
-        document.getElementById('deltaH').textContent = deltaH.toFixed(3) + ' mm';
-        document.getElementById('epsilon').textContent = epsilon.toFixed(2) + ' %';
-        document.getElementById('ld').textContent = ld.toFixed(3) + ' mm';
-        document.getElementById('Qp').textContent = Qp.toFixed(4);
-        document.getElementById('P').textContent = P.toFixed(2) + ' kN';
+        document.getElementById('deltaH').textContent = result.draft.toFixed(3) + ' mm';
+        document.getElementById('epsilon').textContent = (result.reductionRatio * 100).toFixed(2) + ' %';
+        document.getElementById('ld').textContent = result.contactLength.toFixed(3) + ' mm';
+        document.getElementById('Qp').textContent = result.stressStateCoefficient.toFixed(4);
+        document.getElementById('P').textContent = result.force.toFixed(2) + ' kN';
       }
 
       function clearInputs() {

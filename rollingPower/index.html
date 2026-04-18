@@ -369,6 +369,7 @@
       </div>
     </div>
 
+    <script src="../shared/rolling-formulas.js"></script>
     <script>
       function calculate() {
         var P = parseFloat(document.getElementById('P').value);
@@ -386,19 +387,25 @@
         if (n <= 0) { alert('轧辊转速 n 必须大于 0'); return; }
         if (eta <= 0 || eta > 1) { alert('传动效率 η 应在 0~1 范围内（不含0）'); return; }
 
-        // M = 2 * P * a * l_d / 1000 (kN·m, l_d mm→m)
-        var M = 2 * P * a * ld / 1000;
-        // N = M * n / 9.5493 (kW)
-        var N = M * n / 9.5493;
-        // N_motor = N / η (kW)
-        var Nmotor = N / eta;
+        var result;
+        try {
+          result = RollingFormulas.rollingPower({
+            force: P,
+            leverArmCoefficient: a,
+            contactLength: ld,
+            rollSpeedRpm: n,
+            efficiency: eta
+          });
+        } catch (error) {
+          alert(error.message); return;
+        }
 
         document.getElementById('output-placeholder').style.display = 'none';
         document.getElementById('result-content').style.display = 'block';
 
-        document.getElementById('M').textContent = M.toFixed(3) + ' kN\u00B7m';
-        document.getElementById('N').textContent = N.toFixed(2) + ' kW';
-        document.getElementById('Nmotor').textContent = Nmotor.toFixed(2) + ' kW';
+        document.getElementById('M').textContent = result.torque.toFixed(3) + ' kN\u00B7m';
+        document.getElementById('N').textContent = result.power.toFixed(2) + ' kW';
+        document.getElementById('Nmotor').textContent = result.motorPower.toFixed(2) + ' kW';
       }
 
       function clearInputs() {

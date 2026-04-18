@@ -130,6 +130,7 @@
       </div>
     </div>
   </div>
+  <script src="../shared/rolling-formulas.js"></script>
   <script>
     function calculate() {
       var Lhot = parseFloat(document.getElementById('Lhot').value);
@@ -142,17 +143,23 @@
       if (Lhot <= 0) { alert('热态尺寸 L_hot 必须大于 0'); return; }
       if (Thot <= Tcold) { alert('热态温度 T_hot 必须高于冷态温度 T_cold'); return; }
 
-      var alpha = 12.5e-6;
-      var Lcold = Lhot / (1 + alpha * (Thot - Tcold));
-      var deltaL = Lhot - Lcold;
-      var rate = (deltaL / Lhot) * 100;
+      var result;
+      try {
+        result = RollingFormulas.thermalExpansionColdLength({
+          hotLength: Lhot,
+          hotTemp: Thot,
+          coldTemp: Tcold
+        });
+      } catch (error) {
+        alert(error.message); return;
+      }
 
       document.getElementById('output-placeholder').style.display = 'none';
       document.getElementById('result-content').style.display = 'block';
 
-      document.getElementById('Lcold').textContent = Lcold.toFixed(3) + ' mm';
-      document.getElementById('deltaL').textContent = deltaL.toFixed(3) + ' mm';
-      document.getElementById('shrinkRate').textContent = rate.toFixed(4) + ' %';
+      document.getElementById('Lcold').textContent = result.coldLength.toFixed(3) + ' mm';
+      document.getElementById('deltaL').textContent = result.deltaLength.toFixed(3) + ' mm';
+      document.getElementById('shrinkRate').textContent = (result.shrinkRate * 100).toFixed(4) + ' %';
     }
 
     function clearInputs() {

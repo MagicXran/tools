@@ -57,7 +57,7 @@
         <div class="input-section">
           <div class="input-grid">
             <div class="input-group">
-              <label>工作辊径 R (mm)</label>
+              <label>工作辊半径 R (mm)</label>
               <input type="number" id="R" step="1" placeholder="例: 450" min="0" value="450" />
             </div>
             <div class="input-group">
@@ -136,7 +136,7 @@
       <div class="formula-card">
         <div class="formula-title">参数说明</div>
         <div class="formula-content">
-          R — 工作辊半径（mm）<br><br>
+          R — 工作辊半径（mm），不是直径<br><br>
           Δh — 压下量（mm），轧制前后厚度差<br><br>
           μ — 摩擦系数，热轧一般 0.25~0.45<br><br>
           热轧经验公式：μ = 0.8(1.05-0.0005T)<br><br>
@@ -155,6 +155,7 @@
       </div>
     </div>
   </div>
+  <script src="../shared/rolling-formulas.js"></script>
   <script>
     function toggleFrictionSource() {
       var source = document.getElementById('frictionSource').value;
@@ -178,44 +179,43 @@
       var source = document.getElementById('frictionSource').value;
       var mu;
 
-      if (isNaN(R) || R <= 0) { alert('工作辊径 R 必须大于 0'); return; }
+      if (isNaN(R) || R <= 0) { alert('工作辊半径 R 必须大于 0'); return; }
       if (isNaN(dh) || dh <= 0) { alert('压下量 Δh 必须大于 0'); return; }
-      if (dh >= 2 * R) { alert('压下量 Δh 必须小于 2R（辊径）'); return; }
+      if (dh >= 2 * R) { alert('压下量 Δh 必须小于 2R'); return; }
 
       if (source === 'auto') {
         var T = parseFloat(document.getElementById('biteTemp').value);
         if (isNaN(T) || T <= 0) { alert('请输入有效的轧制温度'); return; }
-        mu = 0.8 * (1.05 - 0.0005 * T);
-        if (mu <= 0) { alert('计算得到的摩擦系数 ≤ 0，温度过高（T 应 < 2100°C）'); return; }
+        try {
+          mu = RollingFormulas.frictionCoefficientFromHotRollingTemp(T);
+        } catch (error) {
+          alert(error.message); return;
+        }
       } else {
         mu = parseFloat(document.getElementById('mu').value);
         if (isNaN(mu) || mu <= 0) { alert('摩擦系数 μ 必须大于 0'); return; }
       }
 
-      // 咬入角
-      var cosAlpha = 1 - dh / (2 * R);
-      var alpha = Math.acos(cosAlpha);
-      var alphaDeg = alpha * 180 / Math.PI;
-
-      // 摩擦角
-      var beta = Math.atan(mu);
-      var betaDeg = beta * 180 / Math.PI;
-
-      // 最大允许压下量
-      var dhMax = 2 * R * (1 - Math.cos(beta));
-
-      // 判定
-      var pass = alpha <= beta;
+      var result;
+      try {
+        result = RollingFormulas.biteCondition({
+          rollRadius: R,
+          draft: dh,
+          frictionCoefficient: mu
+        });
+      } catch (error) {
+        alert(error.message); return;
+      }
 
       document.getElementById('output-placeholder').style.display = 'none';
       document.getElementById('result-content').style.display = 'block';
 
-      document.getElementById('biteAngle').textContent = alphaDeg.toFixed(3) + '°';
-      document.getElementById('frictionAngle').textContent = betaDeg.toFixed(3) + '°';
-      document.getElementById('maxReduction').textContent = dhMax.toFixed(3) + ' mm';
+      document.getElementById('biteAngle').textContent = result.biteAngleDeg.toFixed(3) + '°';
+      document.getElementById('frictionAngle').textContent = result.frictionAngleDeg.toFixed(3) + '°';
+      document.getElementById('maxReduction').textContent = result.maxDraft.toFixed(3) + ' mm';
 
       var judgeEl = document.getElementById('biteJudge');
-      if (pass) {
+      if (result.passes) {
         judgeEl.textContent = '\u2705 满足咬入条件';
         judgeEl.style.color = '#10b981';
       } else {

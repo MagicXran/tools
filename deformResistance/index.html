@@ -107,13 +107,10 @@
         <div class="formula-title">计算公式</div>
         <div class="formula-content">
           Misaka 公式：<br>
-          T_K = T + 273<br>
-          n = 0.41 - 0.07C<br>
-          m = (-0.019C+0.126)T/1000 + (0.076C-0.05)<br>
-          K_f = exp(0.126-1.75C+0.594C²+(2851+2968C-1120C²)/T_K) × ε^n × ε̇^m × 9.81<br><br>
-          Shida 公式（简化）：<br>
-          f_C = 1 + 1.5C<br>
-          K_f = 0.28×exp(5000/T_K)×f_C×ε^n×ε̇^m × 9.81
+          T_K = T + 273.15<br>
+          K_f = exp(0.126-1.75C+0.594C²+(2851+2968C-1120C²)/T_K) × ε^0.21 × ε̇^0.13 × 9.80665<br><br>
+          Shida 公式：<br>
+          按相变温度分段计算 g、m、n、σ_f；K_f = 2/√3 × σ_f × F(ε,n) × (ε̇/10)^m × 9.80665
         </div>
       </div>
       <div class="formula-card">
@@ -123,8 +120,7 @@
           T — 轧制温度，热轧一般 600~1400°C<br><br>
           ε — 真应变（对数应变），与压下率相关<br><br>
           ε̇ — 应变速率，热轧一般 1~100 s⁻¹<br><br>
-          n — 应变硬化指数<br>
-          m — 应变速率敏感指数
+          Misaka 与 Shida 都是经验公式，必须限定在热轧温度和普通碳钢范围内
         </div>
       </div>
       <div class="formula-card">
@@ -138,6 +134,7 @@
       </div>
     </div>
   </div>
+  <script src="../shared/rolling-formulas.js"></script>
   <script>
     function calculate() {
       var C = parseFloat(document.getElementById('C').value);
@@ -153,23 +150,30 @@
       if (eps <= 0) { alert('应变 ε 必须大于 0'); return; }
       if (epsRate <= 0) { alert('应变速率 ε̇ 必须大于 0'); return; }
 
-      var TK = T + 273;
-      var n = 0.41 - 0.07 * C;
-      var m = (-0.019 * C + 0.126) * T / 1000 + (0.076 * C - 0.05);
-
-      // Misaka公式
-      var exponent = 0.126 - 1.75 * C + 0.594 * C * C + (2851 + 2968 * C - 1120 * C * C) / TK;
-      var kfMisaka = Math.exp(exponent) * Math.pow(eps, n) * Math.pow(epsRate, m) * 9.81;
-
-      // Shida公式
-      var fC = 1 + 1.5 * C;
-      var kfShida = 0.28 * Math.exp(5000 / TK) * fC * Math.pow(eps, n) * Math.pow(epsRate, m) * 9.81;
+      var misaka;
+      var shida;
+      try {
+        misaka = RollingFormulas.misakaFlowStress({
+          carbonPct: C,
+          tempC: T,
+          strain: eps,
+          strainRate: epsRate
+        });
+        shida = RollingFormulas.shidaFlowStress({
+          carbonPct: C,
+          tempC: T,
+          strain: eps,
+          strainRate: epsRate
+        });
+      } catch (error) {
+        alert(error.message); return;
+      }
 
       document.getElementById('output-placeholder').style.display = 'none';
       document.getElementById('result-content').style.display = 'block';
 
-      document.getElementById('kfMisaka').textContent = kfMisaka.toFixed(2) + ' MPa';
-      document.getElementById('kfShida').textContent = kfShida.toFixed(2) + ' MPa';
+      document.getElementById('kfMisaka').textContent = misaka.flowStress.toFixed(2) + ' MPa';
+      document.getElementById('kfShida').textContent = shida.flowStress.toFixed(2) + ' MPa';
     }
 
     function clearInputs() {

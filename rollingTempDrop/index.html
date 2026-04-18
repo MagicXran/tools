@@ -64,8 +64,8 @@
               <input type="number" id="h" step="0.1" placeholder="例: 25" min="0" value="25" />
             </div>
             <div class="input-group">
-              <label>轧件宽度 b (mm)</label>
-              <input type="number" id="b" step="0.1" placeholder="例: 1200 (参考)" min="0" value="1200" />
+              <label>环境温度 T_env (°C)</label>
+              <input type="number" id="Tenv" step="1" placeholder="例: 25" value="25" />
             </div>
             <div class="input-group">
               <label>空冷时间 t (s)</label>
@@ -123,7 +123,8 @@
           变形升温：<br>
           ΔT_def = η·K_f·10⁶·ε / (ρ·c)<br><br>
           最终温度：<br>
-          T_final = T₀ - ΔT_rad + ΔT_def
+          T_final = T₀ - ΔT_rad + ΔT_def<br><br>
+          不含轧辊接触导热、喷淋冷却和对流换热
         </div>
       </div>
       <div class="formula-card">
@@ -141,21 +142,24 @@
         <div class="formula-content">
           热轧温度控制 — 预测道次间温度变化<br><br>
           终轧温度预测 — 确保终轧温度满足工艺要求<br><br>
-          道次间温降估算 — 优化轧制节奏与冷却策略
+          道次间温降粗估 — 优化轧制节奏与冷却策略<br><br>
+          不含轧辊接触导热时，不能拿它当完整温降模型
         </div>
       </div>
     </div>
   </div>
+  <script src="../shared/rolling-formulas.js"></script>
   <script>
     function calculate() {
       var T0 = parseFloat(document.getElementById('T0').value);
       var h = parseFloat(document.getElementById('h').value);
+      var Tenv = parseFloat(document.getElementById('Tenv').value);
       var t = parseFloat(document.getElementById('t').value);
       var Kf = parseFloat(document.getElementById('Kf').value);
       var eps = parseFloat(document.getElementById('eps').value);
 
-      if (isNaN(T0) || isNaN(h) || isNaN(t) || isNaN(Kf) || isNaN(eps)) {
-        alert('请填写必要的输入参数（宽度 b 为参考值，可选填）'); return;
+      if (isNaN(T0) || isNaN(h) || isNaN(Tenv) || isNaN(t) || isNaN(Kf) || isNaN(eps)) {
+        alert('请填写所有输入参数'); return;
       }
       if (T0 <= 0) { alert('初始温度 T₀ 必须大于 0'); return; }
       if (h <= 0) { alert('轧件厚度 h 必须大于 0'); return; }
@@ -163,34 +167,26 @@
       if (Kf <= 0) { alert('变形抗力 K_f 必须大于 0'); return; }
       if (eps <= 0) { alert('应变 ε 必须大于 0'); return; }
 
-      // 常数
-      var sigma = 5.67e-8;   // Stefan-Boltzmann 常数 W/(m²·K⁴)
-      var eps_r = 0.8;       // 辐射率
-      var rho = 7800;        // 钢密度 kg/m³
-      var c = 600;           // 比热容 J/(kg·°C)
-      var T_env = 25;        // 环境温度 °C
-      var eta = 0.9;         // 机械功转热效率
-
-      // 单位转换
-      var T0_K = T0 + 273.15;
-      var T_env_K = T_env + 273.15;
-      var h_m = h / 1000;    // mm -> m
-
-      // 辐射温降
-      var dT_rad = sigma * eps_r * (Math.pow(T0_K, 4) - Math.pow(T_env_K, 4)) * t / (rho * c * h_m / 2);
-
-      // 变形升温
-      var dT_def = eta * Kf * 1e6 * eps / (rho * c);
-
-      // 最终温度
-      var T_final = T0 - dT_rad + dT_def;
+      var result;
+      try {
+        result = RollingFormulas.temperatureBalance({
+          initialTemp: T0,
+          thickness: h,
+          time: t,
+          flowStress: Kf,
+          strain: eps,
+          ambientTemp: Tenv
+        });
+      } catch (error) {
+        alert(error.message); return;
+      }
 
       document.getElementById('output-placeholder').style.display = 'none';
       document.getElementById('result-content').style.display = 'block';
 
-      document.getElementById('dT_rad').textContent = dT_rad.toFixed(2) + ' °C';
-      document.getElementById('dT_def').textContent = dT_def.toFixed(2) + ' °C';
-      document.getElementById('T_final').textContent = T_final.toFixed(2) + ' °C';
+      document.getElementById('dT_rad').textContent = result.radiationDrop.toFixed(2) + ' °C';
+      document.getElementById('dT_def').textContent = result.deformationRise.toFixed(2) + ' °C';
+      document.getElementById('T_final').textContent = result.finalTemp.toFixed(2) + ' °C';
     }
 
     function clearInputs() {

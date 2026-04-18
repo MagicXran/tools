@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>压下规程计算器</title>
+  <title>压下分配估算器</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background: #f5f7fa; min-height: 100vh; padding: 20px; }
@@ -53,7 +53,7 @@
 </head>
 <body>
   <div class="container">
-    <h1>压下规程计算器</h1>
+    <h1>压下分配估算器</h1>
     <div class="main-content">
       <div class="section-wrapper">
         <div class="section-title">输入</div>
@@ -75,7 +75,7 @@
               <label>分配方式</label>
               <select id="mode">
                 <option value="equal">等压下率</option>
-                <option value="decreasing">递减压下率</option>
+                <option value="decreasing">递减真应变</option>
               </select>
             </div>
           </div>
@@ -144,7 +144,8 @@
           粗轧 3~7 道次<br>
           精轧 5~7 道次<br><br>
           等压下率 — 各道次压下率相同<br><br>
-          递减压下率 — 首道次压下率最大，逐道次递减，更符合实际轧制工艺
+          递减真应变 — 把总真应变按权重分到各道次，首道次分得更多<br><br>
+          注意：这里只做厚度几何分配，不替代咬入、轧制力、力矩、温度和设备极限校核
         </div>
       </div>
       <div class="formula-card">
@@ -157,11 +158,12 @@
       </div>
     </div>
   </div>
+  <script src="../shared/rolling-formulas.js"></script>
   <script>
     function calculate() {
       var H0 = parseFloat(document.getElementById('H0').value);
       var hf = parseFloat(document.getElementById('hf').value);
-      var n = parseInt(document.getElementById('n').value);
+      var n = parseFloat(document.getElementById('n').value);
       var mode = document.getElementById('mode').value;
 
       if (isNaN(H0) || isNaN(hf) || isNaN(n)) {
@@ -177,63 +179,37 @@
         alert('道次数必须为 1~20 的整数'); return;
       }
 
-      var r = hf / H0;
-      var passes = [];
-
-      if (mode === 'equal') {
-        var epsAvg = 1 - Math.pow(r, 1 / n);
-        var H = H0;
-        for (var i = 0; i < n; i++) {
-          var h = H * (1 - epsAvg);
-          passes.push({ H: H, h: h });
-          H = h;
-        }
-      } else {
-        var lnTotal = Math.log(1 / r);
-        var weights = [];
-        var W = 0;
-        for (var i = 0; i < n; i++) {
-          var w = n - i;
-          weights.push(w);
-          W += w;
-        }
-        var H = H0;
-        for (var i = 0; i < n; i++) {
-          var lnI = lnTotal * weights[i] / W;
-          var rI = Math.exp(-lnI);
-          var h = H * rI;
-          passes.push({ H: H, h: h });
-          H = h;
-        }
+      var schedule;
+      try {
+        schedule = RollingFormulas.reductionSchedule({
+          initialThickness: H0,
+          finalThickness: hf,
+          passCount: n,
+          mode: mode
+        });
+      } catch (error) {
+        alert(error.message); return;
       }
 
       var tbody = document.getElementById('tableBody');
       tbody.innerHTML = '';
-      for (var i = 0; i < passes.length; i++) {
-        var p = passes[i];
-        var deltaH = p.H - p.h;
-        var eps = deltaH / p.H * 100;
-        var lambda = p.H / p.h;
-        var cumEps = (H0 - p.h) / H0 * 100;
+      for (var i = 0; i < schedule.passes.length; i++) {
+        var p = schedule.passes[i];
 
         var tr = document.createElement('tr');
         tr.innerHTML =
-          '<td>' + (i + 1) + '</td>' +
-          '<td>' + p.H.toFixed(2) + '</td>' +
-          '<td>' + p.h.toFixed(2) + '</td>' +
-          '<td>' + deltaH.toFixed(2) + '</td>' +
-          '<td>' + eps.toFixed(2) + '</td>' +
-          '<td>' + lambda.toFixed(4) + '</td>' +
-          '<td>' + cumEps.toFixed(2) + '</td>';
+          '<td>' + p.passNumber + '</td>' +
+          '<td>' + p.entryThickness.toFixed(2) + '</td>' +
+          '<td>' + p.exitThickness.toFixed(2) + '</td>' +
+          '<td>' + p.draft.toFixed(2) + '</td>' +
+          '<td>' + (p.reductionRatio * 100).toFixed(2) + '</td>' +
+          '<td>' + p.elongationRatio.toFixed(4) + '</td>' +
+          '<td>' + (p.cumulativeReductionRatio * 100).toFixed(2) + '</td>';
         tbody.appendChild(tr);
       }
 
-      var finalH = passes[passes.length - 1].h;
-      var totalLambda = H0 / finalH;
-      var totalReduction = (H0 - finalH) / H0 * 100;
-
-      document.getElementById('totalLambda').textContent = totalLambda.toFixed(4);
-      document.getElementById('totalReduction').textContent = totalReduction.toFixed(2) + '%';
+      document.getElementById('totalLambda').textContent = schedule.totalElongationRatio.toFixed(4);
+      document.getElementById('totalReduction').textContent = (schedule.totalReductionRatio * 100).toFixed(2) + '%';
 
       document.getElementById('output-placeholder').style.display = 'none';
       document.getElementById('result-content').style.display = 'block';

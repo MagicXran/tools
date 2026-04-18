@@ -277,20 +277,16 @@
           <div class="input-section">
             <div class="input-grid">
               <div class="input-group">
-                <label>工作辊径 R (mm)</label>
-                <input type="number" id="R" step="0.1" placeholder="例: 450" min="0" value="450" />
-              </div>
-              <div class="input-group">
-                <label>入口厚度 H (mm)</label>
-                <input type="number" id="H" step="0.01" placeholder="例: 30" min="0" value="30" />
-              </div>
-              <div class="input-group">
-                <label>出口厚度 h (mm)</label>
-                <input type="number" id="h" step="0.01" placeholder="例: 22" min="0" value="22" />
-              </div>
-              <div class="input-group">
                 <label>辊面线速度 v_R (m/s)</label>
                 <input type="number" id="vR" step="0.01" placeholder="例: 3.5" min="0" value="3.5" />
+              </div>
+              <div class="input-group">
+                <label>实测出口速度 v_out (m/s)</label>
+                <input type="number" id="vOutMeasured" step="0.01" placeholder="可选，例: 3.675" min="0" value="" />
+              </div>
+              <div class="input-group">
+                <label>目标前滑值 S_h (%)</label>
+                <input type="number" id="ShInput" step="0.01" placeholder="无实测速度时使用，例: 5" min="0" value="5" />
               </div>
             </div>
           </div>
@@ -308,10 +304,6 @@
             <div class="output-content">
               <div id="output-placeholder" class="output-placeholder">请输入数值...</div>
               <div id="result-content" style="display: none">
-                <div class="result-item">
-                  <span class="result-label">压下量 Δh:</span>
-                  <span class="result-value" id="deltaH">—</span>
-                </div>
                 <div class="result-item">
                   <span class="result-label">前滑值 S_h:</span>
                   <span class="result-value" id="Sh">—</span>
@@ -335,10 +327,8 @@
         <div class="formula-card">
           <div class="formula-title">计算公式</div>
           <div class="formula-content">
-            压下量：<br>
-            Δh = H - h<br><br>
-            前滑值（Ekelund 近似）：<br>
-            S_h = Δh/(4h) × √(h/R)<br><br>
+            由实测速度反算：<br>
+            S_h = v_out / v_R - 1<br><br>
             出口速度：<br>
             v_out = v_R × (1 + S_h)
           </div>
@@ -348,9 +338,8 @@
           <div class="formula-title">参数说明</div>
           <div class="formula-content">
             前滑值一般范围 2%~10%<br><br>
-            与压下率正相关 — 压下量越大，前滑越大<br><br>
-            与辊径负相关 — 辊径越大，前滑越小<br><br>
-            S_h 为比值，显示时 ×100 转为百分比
+            几何压下近似式缺少摩擦、中性角和张力，不再用于自动估算<br><br>
+            有实测出口速度时优先反算前滑；否则用输入前滑计算出口速度
           </div>
         </div>
 
@@ -365,36 +354,53 @@
       </div>
     </div>
 
+    <script src="../shared/rolling-formulas.js"></script>
     <script>
       function calculate() {
-        var R = parseFloat(document.getElementById('R').value);
-        var H = parseFloat(document.getElementById('H').value);
-        var h = parseFloat(document.getElementById('h').value);
         var vR = parseFloat(document.getElementById('vR').value);
+        var vOutMeasured = parseFloat(document.getElementById('vOutMeasured').value);
+        var ShInput = parseFloat(document.getElementById('ShInput').value);
 
-        if (isNaN(R) || isNaN(H) || isNaN(h) || isNaN(vR)) {
-          alert('请填写所有输入参数'); return;
+        if (isNaN(vR)) {
+          alert('请填写辊面线速度'); return;
         }
-        if (R <= 0) { alert('工作辊径 R 必须大于 0'); return; }
-        if (H <= 0) { alert('入口厚度 H 必须大于 0'); return; }
-        if (h <= 0) { alert('出口厚度 h 必须大于 0'); return; }
-        if (H <= h) { alert('入口厚度 H 必须大于出口厚度 h'); return; }
         if (vR <= 0) { alert('辊面线速度 v_R 必须大于 0'); return; }
 
-        var deltaH = H - h;
-        var Sh = (deltaH / (4 * h)) * Math.sqrt(h / R);
-        var vOut = vR * (1 + Sh);
+        var Sh;
+        var vOut;
+        try {
+          if (!isNaN(vOutMeasured) && vOutMeasured > 0 && !isNaN(ShInput) && ShInput > 0) {
+            alert('实测出口速度和目标前滑值二选一，不要同时填写'); return;
+          }
+          if (!isNaN(vOutMeasured) && vOutMeasured > 0) {
+            Sh = RollingFormulas.forwardSlipFromSpeeds({
+              rollSpeed: vR,
+              exitSpeed: vOutMeasured
+            }).forwardSlip;
+            vOut = vOutMeasured;
+          } else {
+            if (isNaN(ShInput) || ShInput < 0) { alert('请输入有效的目标前滑值'); return; }
+            Sh = ShInput / 100;
+            vOut = RollingFormulas.exitSpeedFromForwardSlip({
+              rollSpeed: vR,
+              forwardSlip: Sh
+            }).exitSpeed;
+          }
+        } catch (error) {
+          alert(error.message); return;
+        }
 
         document.getElementById('output-placeholder').style.display = 'none';
         document.getElementById('result-content').style.display = 'block';
 
-        document.getElementById('deltaH').textContent = deltaH.toFixed(3) + ' mm';
         document.getElementById('Sh').textContent = (Sh * 100).toFixed(2) + ' %';
         document.getElementById('vOut').textContent = vOut.toFixed(4) + ' m/s';
       }
 
       function clearInputs() {
-        document.querySelectorAll('input[type="number"]').forEach(function(el) { el.value = ''; });
+        document.getElementById('vR').value = '';
+        document.getElementById('vOutMeasured').value = '';
+        document.getElementById('ShInput').value = '5';
         document.getElementById('output-placeholder').style.display = 'block';
         document.getElementById('result-content').style.display = 'none';
       }

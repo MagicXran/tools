@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>压下规程计算器</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background: #f5f7fa; min-height: 100vh; padding: 20px; }
+    .container { max-width: 1200px; background: url('image/page-bg.png') no-repeat center center; background-size: cover; margin: 0 auto; padding: 20px; border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); }
+    h1 { color: #1d2129; font-size: 36px; font-weight: 700; font-family: Source Han Sans; line-height: 54px; display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 24px; }
+    .main-content { display: grid; grid-template-columns: 1fr auto 1fr; gap: 20px; align-items: start; }
+    .section-wrapper { display: flex; flex-direction: column; }
+    .section-title { font-size: 20px; font-weight: 500; font-family: medium/Headline1-Medium; color: #3d3d3d; margin-bottom: 16px; }
+    .input-section, .output-section { background: #ffffff; border: 1px solid #a7c4ff; border-radius: 8px; padding: 16px; }
+    .input-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+    .input-group { display: flex; flex-direction: column; }
+    .input-group label { margin-bottom: 6px; font-family: Alibaba PuHuiTi 2; color: #717a87; font-size: 14px; line-height: 22px; font-weight: 500; }
+    .input-group input, .input-group select { padding: 8px 12px; border: 1px solid #e6e9f4; font-family: Alibaba PuHuiTi 2; font-weight: 400; line-height: 22px; border-radius: 6px; font-size: 13px; background-color: #ffffff; color: #1d2129; transition: all 0.3s ease; }
+    .input-group input:focus, .input-group select:focus { outline: none; border-color: #4a9eff; box-shadow: 0 0 0 3px rgba(74,158,255,0.1); }
+    .input-group input::placeholder { color: #959ba5; }
+    .input-group select { cursor: pointer; appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23717a87' d='M2 4l4 4 4-4'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; padding-right: 32px; }
+    .arrow-section { display: flex; align-items: center; justify-content: center; padding: 20px 0; }
+    .swap-button { display: flex; justify-content: center; margin: 0 20px; background: none; border: none; cursor: pointer; transition: transform 0.3s ease; padding: 5px; }
+    .swap-button img { width: 50px; height: 50px; object-fit: contain; }
+    .swap-button:hover { transform: rotate(180deg); }
+    .output-content { min-height: 300px; }
+    .output-placeholder { font-weight: 400; font-size: 14px; line-height: 22px; color: #3d3d3d; }
+    .result-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    .result-table th { background: #f0f5ff; color: #3d3d3d; font-weight: 600; padding: 8px 6px; border: 1px solid #e6e9f4; text-align: center; }
+    .result-table td { padding: 6px; border: 1px solid #e6e9f4; text-align: center; color: #3d3d3d; }
+    .result-table tr:hover { background: #f8fbff; }
+    .summary-item { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; }
+    .summary-label { color: #717a87; font-size: 16px; }
+    .summary-value { font-family: HarmonyOS Sans; font-size: 16px; font-weight: 500; color: #3d3d3d; }
+    .button-group { display: flex; gap: 16px; justify-content: center; margin: 20px 0; }
+    .btn { padding: 12px 32px; border-radius: 24px; font-size: 16px; font-weight: 600; cursor: pointer; transition: all 0.2s; border: none; }
+    .btn-primary { background: linear-gradient(135deg, #278bf3 0%, #409eff 100%); color: white; }
+    .btn-primary:hover { background: linear-gradient(135deg, #1a7ae0 0%, #3090f0 100%); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(39,139,243,0.3); }
+    .btn-secondary { background: white; color: #1d2129; border: 1px solid #278bf3; }
+    .btn-secondary:hover { background: #f0f9ff; }
+    .formula-section { background-color: #f5f5fa; display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; border-radius: 8px; padding: 4px; }
+    .formula-card { padding: 20px; }
+    .formula-title { font-family: medium/Headline3-Medium; font-weight: 500; font-size: 16px; line-height: 24px; color: #3d3d3d; margin-bottom: 12px; }
+    .formula-content { font-family: 'Courier New', monospace; font-size: 13px; color: #374151; line-height: 1.6; }
+    @media (max-width: 768px) {
+      .main-content { grid-template-columns: 1fr; gap: 20px; }
+      .arrow-section { transform: rotate(90deg); }
+      .input-grid { grid-template-columns: repeat(2, 1fr); }
+      .formula-section { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>压下规程计算器</h1>
+    <div class="main-content">
+      <div class="section-wrapper">
+        <div class="section-title">输入</div>
+        <div class="input-section">
+          <div class="input-grid">
+            <div class="input-group">
+              <label>坯料厚度 H₀ (mm)</label>
+              <input type="number" id="H0" step="0.1" placeholder="例: 230" min="0" value="230" />
+            </div>
+            <div class="input-group">
+              <label>成品厚度 h_f (mm)</label>
+              <input type="number" id="hf" step="0.1" placeholder="例: 12" min="0" value="12" />
+            </div>
+            <div class="input-group">
+              <label>道次数 n</label>
+              <input type="number" id="n" step="1" placeholder="1~20 整数" min="1" max="20" value="7" />
+            </div>
+            <div class="input-group">
+              <label>分配方式</label>
+              <select id="mode">
+                <option value="equal">等压下率</option>
+                <option value="decreasing">递减压下率</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="arrow-section">
+        <button class="swap-button" onclick="calculate()">
+          <img src="image/transformation.png" alt="计算" />
+        </button>
+      </div>
+      <div class="section-wrapper">
+        <div class="section-title">输出（计算结果）</div>
+        <div class="output-section">
+          <div class="output-content">
+            <div id="output-placeholder" class="output-placeholder">请输入数值...</div>
+            <div id="result-content" style="display: none">
+              <table class="result-table">
+                <thead>
+                  <tr>
+                    <th>道次</th>
+                    <th>入口H_i(mm)</th>
+                    <th>出口h_i(mm)</th>
+                    <th>&Delta;h_i(mm)</th>
+                    <th>&epsilon;_i(%)</th>
+                    <th>&lambda;_i</th>
+                    <th>累计(%)</th>
+                  </tr>
+                </thead>
+                <tbody id="tableBody"></tbody>
+              </table>
+              <div style="margin-top: 12px; border-top: 1px solid #e6e9f4; padding-top: 8px;">
+                <div class="summary-item">
+                  <span class="summary-label">总延伸系数</span>
+                  <span class="summary-value" id="totalLambda">—</span>
+                </div>
+                <div class="summary-item">
+                  <span class="summary-label">总压下率</span>
+                  <span class="summary-value" id="totalReduction">—</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="button-group">
+      <button class="btn btn-primary" onclick="calculate()">开始计算</button>
+      <button class="btn btn-secondary" onclick="clearInputs()">清除数据</button>
+    </div>
+    <div class="formula-section">
+      <div class="formula-card">
+        <div class="formula-title">计算公式</div>
+        <div class="formula-content">
+          ε_avg = 1 - (h_f/H₀)^(1/n)<br>
+          等压下率分配公式<br><br>
+          ε_i = (H_i - h_i) / H_i<br>
+          各道次压下率<br><br>
+          λ_i = H_i / h_i<br>
+          各道次延伸系数
+        </div>
+      </div>
+      <div class="formula-card">
+        <div class="formula-title">参数说明</div>
+        <div class="formula-content">
+          道次数一般取值：<br>
+          粗轧 3~7 道次<br>
+          精轧 5~7 道次<br><br>
+          等压下率 — 各道次压下率相同<br><br>
+          递减压下率 — 首道次压下率最大，逐道次递减，更符合实际轧制工艺
+        </div>
+      </div>
+      <div class="formula-card">
+        <div class="formula-title">应用场景</div>
+        <div class="formula-content">
+          轧制工艺设计 — 确定各道次压下量分配方案<br><br>
+          压下规程优化 — 对比不同分配方式的效果<br><br>
+          新产品开发 — 为新规格产品制定初始轧制规程
+        </div>
+      </div>
+    </div>
+  </div>
+  <script>
+    function calculate() {
+      var H0 = parseFloat(document.getElementById('H0').value);
+      var hf = parseFloat(document.getElementById('hf').value);
+      var n = parseInt(document.getElementById('n').value);
+      var mode = document.getElementById('mode').value;
+
+      if (isNaN(H0) || isNaN(hf) || isNaN(n)) {
+        alert('请填写所有输入项'); return;
+      }
+      if (H0 <= 0 || hf <= 0) {
+        alert('厚度必须大于 0'); return;
+      }
+      if (hf >= H0) {
+        alert('成品厚度必须小于坯料厚度'); return;
+      }
+      if (n < 1 || n > 20 || !Number.isInteger(n)) {
+        alert('道次数必须为 1~20 的整数'); return;
+      }
+
+      var r = hf / H0;
+      var passes = [];
+
+      if (mode === 'equal') {
+        var epsAvg = 1 - Math.pow(r, 1 / n);
+        var H = H0;
+        for (var i = 0; i < n; i++) {
+          var h = H * (1 - epsAvg);
+          passes.push({ H: H, h: h });
+          H = h;
+        }
+      } else {
+        var lnTotal = Math.log(1 / r);
+        var weights = [];
+        var W = 0;
+        for (var i = 0; i < n; i++) {
+          var w = n - i;
+          weights.push(w);
+          W += w;
+        }
+        var H = H0;
+        for (var i = 0; i < n; i++) {
+          var lnI = lnTotal * weights[i] / W;
+          var rI = Math.exp(-lnI);
+          var h = H * rI;
+          passes.push({ H: H, h: h });
+          H = h;
+        }
+      }
+
+      var tbody = document.getElementById('tableBody');
+      tbody.innerHTML = '';
+      for (var i = 0; i < passes.length; i++) {
+        var p = passes[i];
+        var deltaH = p.H - p.h;
+        var eps = deltaH / p.H * 100;
+        var lambda = p.H / p.h;
+        var cumEps = (H0 - p.h) / H0 * 100;
+
+        var tr = document.createElement('tr');
+        tr.innerHTML =
+          '<td>' + (i + 1) + '</td>' +
+          '<td>' + p.H.toFixed(2) + '</td>' +
+          '<td>' + p.h.toFixed(2) + '</td>' +
+          '<td>' + deltaH.toFixed(2) + '</td>' +
+          '<td>' + eps.toFixed(2) + '</td>' +
+          '<td>' + lambda.toFixed(4) + '</td>' +
+          '<td>' + cumEps.toFixed(2) + '</td>';
+        tbody.appendChild(tr);
+      }
+
+      var finalH = passes[passes.length - 1].h;
+      var totalLambda = H0 / finalH;
+      var totalReduction = (H0 - finalH) / H0 * 100;
+
+      document.getElementById('totalLambda').textContent = totalLambda.toFixed(4);
+      document.getElementById('totalReduction').textContent = totalReduction.toFixed(2) + '%';
+
+      document.getElementById('output-placeholder').style.display = 'none';
+      document.getElementById('result-content').style.display = 'block';
+    }
+
+    function clearInputs() {
+      document.getElementById('H0').value = '';
+      document.getElementById('hf').value = '';
+      document.getElementById('n').value = '';
+      document.getElementById('mode').selectedIndex = 0;
+
+      document.getElementById('output-placeholder').style.display = 'block';
+      document.getElementById('result-content').style.display = 'none';
+      document.getElementById('tableBody').innerHTML = '';
+    }
+  </script>
+</body>
+</html>

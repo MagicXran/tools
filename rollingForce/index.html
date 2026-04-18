@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>轧制力计算器</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+        background: #f5f7fa;
+        min-height: 100vh;
+        padding: 20px;
+      }
+
+      .container {
+        max-width: 1200px;
+        background: url('image/page-bg.png') no-repeat center center;
+        background-size: cover;
+        margin: 0 auto;
+        padding: 20px;
+        border-radius: 16px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+      }
+
+      h1 {
+        color: #1d2129;
+        font-size: 36px;
+        font-weight: 700;
+        font-family: Source Han Sans;
+        line-height: 54px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        margin-bottom: 24px;
+      }
+
+      .main-content {
+        display: grid;
+        grid-template-columns: 1fr auto 1fr;
+        gap: 20px;
+        align-items: start;
+      }
+
+      .section-wrapper {
+        display: flex;
+        flex-direction: column;
+      }
+
+      .section-title {
+        font-size: 20px;
+        font-weight: 500;
+        font-family: medium/Headline1-Medium;
+        color: #3d3d3d;
+        margin-bottom: 16px;
+      }
+
+      .input-section,
+      .output-section {
+        background: #ffffff;
+        border: 1px solid #a7c4ff;
+        border-radius: 8px;
+        padding: 16px;
+      }
+
+      .input-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 16px;
+      }
+
+      .input-group {
+        display: flex;
+        flex-direction: column;
+      }
+
+      .input-group label {
+        margin-bottom: 6px;
+        font-family: Alibaba PuHuiTi 2;
+        color: #717a87;
+        font-size: 14px;
+        line-height: 22px;
+        font-weight: 500;
+      }
+
+      .input-group input,
+      .input-group select {
+        padding: 8px 12px;
+        border: 1px solid #e6e9f4;
+        font-family: Alibaba PuHuiTi 2;
+        font-weight: 400;
+        line-height: 22px;
+        border-radius: 6px;
+        font-size: 13px;
+        background-color: #ffffff;
+        color: #1d2129;
+        transition: all 0.3s ease;
+      }
+
+      .input-group input:focus,
+      .input-group select:focus {
+        outline: none;
+        border-color: #4a9eff;
+        box-shadow: 0 0 0 3px rgba(74, 158, 255, 0.1);
+      }
+
+      .input-group input::placeholder {
+        color: #959ba5;
+      }
+
+      .arrow-section {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 20px 0;
+      }
+
+      .swap-button {
+        display: flex;
+        justify-content: center;
+        margin: 0 20px;
+        background: none;
+        border: none;
+        cursor: pointer;
+        transition: transform 0.3s ease;
+        padding: 5px;
+      }
+
+      .swap-button img {
+        width: 50px;
+        height: 50px;
+        object-fit: contain;
+      }
+
+      .swap-button:hover {
+        transform: rotate(180deg);
+      }
+
+      .output-content {
+        min-height: 230px;
+      }
+
+      .output-placeholder {
+        font-weight: 400;
+        font-size: 14px;
+        line-height: 22px;
+        color: #3d3d3d;
+      }
+
+      .result-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 12px 0;
+      }
+
+      .result-item:last-child {
+        border-bottom: none;
+      }
+
+      .result-label {
+        font-family: PingFang SC;
+        font-weight: 400;
+        font-size: 20px;
+        line-height: 28px;
+        color: #717a87;
+      }
+
+      .result-value {
+        font-family: HarmonyOS Sans;
+        font-size: 20px;
+        line-height: 28px;
+        font-weight: 500;
+        color: #3d3d3d;
+      }
+
+      .button-group {
+        display: flex;
+        gap: 16px;
+        justify-content: center;
+        margin: 20px 0;
+      }
+
+      .btn {
+        padding: 12px 32px;
+        border-radius: 24px;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+        border: none;
+      }
+
+      .btn-primary {
+        background: linear-gradient(135deg, #278bf3 0%, #409eff 100%);
+        color: white;
+      }
+
+      .btn-primary:hover {
+        background: linear-gradient(135deg, #1a7ae0 0%, #3090f0 100%);
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(39, 139, 243, 0.3);
+      }
+
+      .btn-secondary {
+        background: white;
+        color: #1d2129;
+        border: 1px solid #278bf3;
+      }
+
+      .btn-secondary:hover {
+        background: #f0f9ff;
+      }
+
+      .formula-section {
+        background-color: #f5f5fa;
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 24px;
+        border-radius: 8px;
+        padding: 4px;
+      }
+
+      .formula-card {
+        padding: 20px;
+      }
+
+      .formula-title {
+        font-family: medium/Headline3-Medium;
+        font-weight: 500;
+        font-size: 16px;
+        line-height: 24px;
+        color: #3d3d3d;
+        margin-bottom: 12px;
+      }
+
+      .formula-content {
+        font-family: 'Courier New', monospace;
+        font-size: 13px;
+        color: #374151;
+        line-height: 1.6;
+      }
+
+      @media (max-width: 768px) {
+        .main-content {
+          grid-template-columns: 1fr;
+          gap: 20px;
+        }
+
+        .arrow-section {
+          transform: rotate(90deg);
+        }
+
+        .input-grid {
+          grid-template-columns: repeat(2, 1fr);
+        }
+
+        .formula-section {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>轧制力计算器</h1>
+
+      <div class="main-content">
+        <div class="section-wrapper">
+          <div class="section-title">输入</div>
+          <div class="input-section">
+            <div class="input-grid">
+              <div class="input-group">
+                <label>工作辊径 R (mm)</label>
+                <input type="number" id="R" step="0.1" placeholder="请输入" min="0" value="450" />
+              </div>
+              <div class="input-group">
+                <label>入口厚度 H (mm)</label>
+                <input type="number" id="H" step="0.01" placeholder="请输入" min="0" value="30" />
+              </div>
+              <div class="input-group">
+                <label>出口厚度 h (mm)</label>
+                <input type="number" id="h" step="0.01" placeholder="请输入" min="0" value="22" />
+              </div>
+              <div class="input-group">
+                <label>轧件宽度 b (mm)</label>
+                <input type="number" id="b" step="0.1" placeholder="请输入" min="0" value="1200" />
+              </div>
+              <div class="input-group">
+                <label>变形抗力 K_f (MPa)</label>
+                <input type="number" id="Kf" step="0.1" placeholder="请输入" min="0" value="150" />
+              </div>
+              <div class="input-group">
+                <label>摩擦系数 μ</label>
+                <input type="number" id="mu" step="0.01" placeholder="请输入" min="0" value="0.35" />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="arrow-section">
+          <button class="swap-button" onclick="calculate()">
+            <img src="image/transformation.png" alt="计算" />
+          </button>
+        </div>
+
+        <div class="section-wrapper">
+          <div class="section-title">输出（计算结果）</div>
+          <div class="output-section">
+            <div class="output-content">
+              <div id="output-placeholder" class="output-placeholder">请输入数值...</div>
+              <div id="result-content" style="display: none">
+                <div class="result-item">
+                  <span class="result-label">压下量 Δh:</span>
+                  <span class="result-value" id="deltaH">—</span>
+                </div>
+                <div class="result-item">
+                  <span class="result-label">压下率 ε:</span>
+                  <span class="result-value" id="epsilon">—</span>
+                </div>
+                <div class="result-item">
+                  <span class="result-label">接触弧长 l_d:</span>
+                  <span class="result-value" id="ld">—</span>
+                </div>
+                <div class="result-item">
+                  <span class="result-label">应力状态系数 Q_p:</span>
+                  <span class="result-value" id="Qp">—</span>
+                </div>
+                <div class="result-item">
+                  <span class="result-label">轧制力 P:</span>
+                  <span class="result-value" id="P">—</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="button-group">
+        <button class="btn btn-primary" onclick="calculate()">开始计算</button>
+        <button class="btn btn-secondary" onclick="clearInputs()">清除数据</button>
+      </div>
+
+      <div class="formula-section">
+        <div class="formula-card">
+          <div class="formula-title">计算公式</div>
+          <div class="formula-content">
+            Δh = H - h<br><br>
+            ε = Δh / H × 100%<br><br>
+            l_d = √(R × Δh)<br><br>
+            Q_p = 1 + 1.6μ√(RΔh)/(H+h) - 1.2Δh/(H+h)<br>
+            （Ekelund 公式）<br><br>
+            P = K_f × Q_p × b × l_d / 1000 (kN)
+          </div>
+        </div>
+
+        <div class="formula-card">
+          <div class="formula-title">参数说明</div>
+          <div class="formula-content">
+            R — 工作辊半径，热轧板带一般 300~600mm<br><br>
+            H / h — 轧件入口 / 出口厚度<br><br>
+            K_f — 变形抗力，热轧一般 80~250 MPa<br><br>
+            μ — 摩擦系数，热轧 0.25~0.45，冷轧 0.03~0.10<br><br>
+            Q_p — 应力状态系数
+          </div>
+        </div>
+
+        <div class="formula-card">
+          <div class="formula-title">应用场景</div>
+          <div class="formula-content">
+            热轧板带轧制力估算 — 确定轧机能力和道次分配<br><br>
+            型钢轧制 — 估算各道次轧制力，校核轧辊强度<br><br>
+            棒线材轧制 — 粗轧、中轧、精轧各道次计算<br><br>
+            设备选型 — 根据最大轧制力选择轧机规格
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      function calculate() {
+        var R = parseFloat(document.getElementById('R').value);
+        var H = parseFloat(document.getElementById('H').value);
+        var h = parseFloat(document.getElementById('h').value);
+        var b = parseFloat(document.getElementById('b').value);
+        var Kf = parseFloat(document.getElementById('Kf').value);
+        var mu = parseFloat(document.getElementById('mu').value);
+
+        if (isNaN(R) || isNaN(H) || isNaN(h) || isNaN(b) || isNaN(Kf) || isNaN(mu)) {
+          alert('请填写所有输入参数'); return;
+        }
+        if (R <= 0) { alert('工作辊径 R 必须大于 0'); return; }
+        if (H <= 0) { alert('入口厚度 H 必须大于 0'); return; }
+        if (h <= 0) { alert('出口厚度 h 必须大于 0'); return; }
+        if (H <= h) { alert('入口厚度 H 必须大于出口厚度 h'); return; }
+        if (b <= 0) { alert('轧件宽度 b 必须大于 0'); return; }
+        if (Kf <= 0) { alert('变形抗力 K_f 必须大于 0'); return; }
+        if (mu <= 0) { alert('摩擦系数 μ 必须大于 0'); return; }
+
+        var deltaH = H - h;
+        var epsilon = (deltaH / H) * 100;
+        var ld = Math.sqrt(R * deltaH);
+        var Qp = 1 + 1.6 * mu * Math.sqrt(R * deltaH) / (H + h) - 1.2 * deltaH / (H + h);
+        var P = Kf * Qp * b * ld / 1000;
+
+        document.getElementById('output-placeholder').style.display = 'none';
+        document.getElementById('result-content').style.display = 'block';
+
+        document.getElementById('deltaH').textContent = deltaH.toFixed(3) + ' mm';
+        document.getElementById('epsilon').textContent = epsilon.toFixed(2) + ' %';
+        document.getElementById('ld').textContent = ld.toFixed(3) + ' mm';
+        document.getElementById('Qp').textContent = Qp.toFixed(4);
+        document.getElementById('P').textContent = P.toFixed(2) + ' kN';
+      }
+
+      function clearInputs() {
+        document.querySelectorAll('input[type="number"]').forEach(function(el) { el.value = ''; });
+        document.getElementById('output-placeholder').style.display = 'block';
+        document.getElementById('result-content').style.display = 'none';
+      }
+    </script>
+  </body>
+</html>

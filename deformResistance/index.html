@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>变形抗力计算器</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background: #f5f7fa; min-height: 100vh; padding: 20px; }
+    .container { max-width: 1200px; background: url('image/page-bg.png') no-repeat center center; background-size: cover; margin: 0 auto; padding: 20px; border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); }
+    h1 { color: #1d2129; font-size: 36px; font-weight: 700; font-family: Source Han Sans; line-height: 54px; display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 24px; }
+    .main-content { display: grid; grid-template-columns: 1fr auto 1fr; gap: 20px; align-items: start; }
+    .section-wrapper { display: flex; flex-direction: column; }
+    .section-title { font-size: 20px; font-weight: 500; font-family: medium/Headline1-Medium; color: #3d3d3d; margin-bottom: 16px; }
+    .input-section, .output-section { background: #ffffff; border: 1px solid #a7c4ff; border-radius: 8px; padding: 16px; }
+    .input-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+    .input-group { display: flex; flex-direction: column; }
+    .input-group label { margin-bottom: 6px; font-family: Alibaba PuHuiTi 2; color: #717a87; font-size: 14px; line-height: 22px; font-weight: 500; }
+    .input-group input, .input-group select { padding: 8px 12px; border: 1px solid #e6e9f4; font-family: Alibaba PuHuiTi 2; font-weight: 400; line-height: 22px; border-radius: 6px; font-size: 13px; background-color: #ffffff; color: #1d2129; transition: all 0.3s ease; }
+    .input-group input:focus, .input-group select:focus { outline: none; border-color: #4a9eff; box-shadow: 0 0 0 3px rgba(74,158,255,0.1); }
+    .input-group input::placeholder { color: #959ba5; }
+    .arrow-section { display: flex; align-items: center; justify-content: center; padding: 20px 0; }
+    .swap-button { display: flex; justify-content: center; margin: 0 20px; background: none; border: none; cursor: pointer; transition: transform 0.3s ease; padding: 5px; }
+    .swap-button img { width: 50px; height: 50px; object-fit: contain; }
+    .swap-button:hover { transform: rotate(180deg); }
+    .output-content { min-height: 230px; }
+    .output-placeholder { font-weight: 400; font-size: 14px; line-height: 22px; color: #3d3d3d; }
+    .result-item { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; }
+    .result-item:last-child { border-bottom: none; }
+    .result-label { font-family: PingFang SC; font-weight: 400; font-size: 20px; line-height: 28px; color: #717a87; }
+    .result-value { font-family: HarmonyOS Sans; font-size: 20px; line-height: 28px; font-weight: 500; color: #3d3d3d; }
+    .button-group { display: flex; gap: 16px; justify-content: center; margin: 20px 0; }
+    .btn { padding: 12px 32px; border-radius: 24px; font-size: 16px; font-weight: 600; cursor: pointer; transition: all 0.2s; border: none; }
+    .btn-primary { background: linear-gradient(135deg, #278bf3 0%, #409eff 100%); color: white; }
+    .btn-primary:hover { background: linear-gradient(135deg, #1a7ae0 0%, #3090f0 100%); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(39,139,243,0.3); }
+    .btn-secondary { background: white; color: #1d2129; border: 1px solid #278bf3; }
+    .btn-secondary:hover { background: #f0f9ff; }
+    .formula-section { background-color: #f5f5fa; display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; border-radius: 8px; padding: 4px; }
+    .formula-card { padding: 20px; }
+    .formula-title { font-family: medium/Headline3-Medium; font-weight: 500; font-size: 16px; line-height: 24px; color: #3d3d3d; margin-bottom: 12px; }
+    .formula-content { font-family: 'Courier New', monospace; font-size: 13px; color: #374151; line-height: 1.6; }
+    @media (max-width: 768px) {
+      .main-content { grid-template-columns: 1fr; gap: 20px; }
+      .arrow-section { transform: rotate(90deg); }
+      .input-grid { grid-template-columns: repeat(2, 1fr); }
+      .formula-section { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>变形抗力计算器</h1>
+    <div class="main-content">
+      <div class="section-wrapper">
+        <div class="section-title">输入</div>
+        <div class="input-section">
+          <div class="input-grid">
+            <div class="input-group">
+              <label>碳含量 C (%)</label>
+              <input type="number" id="C" step="0.01" placeholder="例: 0.15" min="0" value="0.15" />
+            </div>
+            <div class="input-group">
+              <label>轧制温度 T (°C)</label>
+              <input type="number" id="T" step="1" placeholder="例: 1000" min="0" value="1000" />
+            </div>
+            <div class="input-group">
+              <label>应变 ε</label>
+              <input type="number" id="eps" step="0.01" placeholder="例: 0.3" min="0" value="0.3" />
+            </div>
+            <div class="input-group">
+              <label>应变速率 ε̇ (s⁻¹)</label>
+              <input type="number" id="epsRate" step="0.1" placeholder="例: 10" min="0" value="10" />
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="arrow-section">
+        <button class="swap-button" onclick="calculate()">
+          <img src="image/transformation.png" alt="计算" />
+        </button>
+      </div>
+      <div class="section-wrapper">
+        <div class="section-title">输出（计算结果）</div>
+        <div class="output-section">
+          <div class="output-content">
+            <div id="output-placeholder" class="output-placeholder">请输入数值...</div>
+            <div id="result-content" style="display: none">
+              <div class="result-item">
+                <span class="result-label">Misaka 公式 K_f</span>
+                <span class="result-value" id="kfMisaka">—</span>
+              </div>
+              <div class="result-item">
+                <span class="result-label">Shida 公式 K_f</span>
+                <span class="result-value" id="kfShida">—</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="button-group">
+      <button class="btn btn-primary" onclick="calculate()">开始计算</button>
+      <button class="btn btn-secondary" onclick="clearInputs()">清除数据</button>
+    </div>
+    <div class="formula-section">
+      <div class="formula-card">
+        <div class="formula-title">计算公式</div>
+        <div class="formula-content">
+          Misaka 公式：<br>
+          T_K = T + 273<br>
+          n = 0.41 - 0.07C<br>
+          m = (-0.019C+0.126)T/1000 + (0.076C-0.05)<br>
+          K_f = exp(0.126-1.75C+0.594C²+(2851+2968C-1120C²)/T_K) × ε^n × ε̇^m × 9.81<br><br>
+          Shida 公式（简化）：<br>
+          f_C = 1 + 1.5C<br>
+          K_f = 0.28×exp(5000/T_K)×f_C×ε^n×ε̇^m × 9.81
+        </div>
+      </div>
+      <div class="formula-card">
+        <div class="formula-title">参数说明</div>
+        <div class="formula-content">
+          C — 碳含量，低碳钢 0.05~0.25%，中碳钢 0.25~0.60%<br><br>
+          T — 轧制温度，热轧一般 600~1400°C<br><br>
+          ε — 真应变（对数应变），与压下率相关<br><br>
+          ε̇ — 应变速率，热轧一般 1~100 s⁻¹<br><br>
+          n — 应变硬化指数<br>
+          m — 应变速率敏感指数
+        </div>
+      </div>
+      <div class="formula-card">
+        <div class="formula-title">应用场景</div>
+        <div class="formula-content">
+          热轧工艺参数设定 — 确定合理的轧制温度和变形量<br><br>
+          轧制力计算输入参数 — 变形抗力是轧制力计算的核心参数<br><br>
+          道次分配优化 — 根据不同温度下的变形抗力合理分配压下量<br><br>
+          两种公式对比验证 — 交叉校验计算结果的合理性
+        </div>
+      </div>
+    </div>
+  </div>
+  <script>
+    function calculate() {
+      var C = parseFloat(document.getElementById('C').value);
+      var T = parseFloat(document.getElementById('T').value);
+      var eps = parseFloat(document.getElementById('eps').value);
+      var epsRate = parseFloat(document.getElementById('epsRate').value);
+
+      if (isNaN(C) || isNaN(T) || isNaN(eps) || isNaN(epsRate)) {
+        alert('请填写所有输入参数'); return;
+      }
+      if (C <= 0) { alert('碳含量 C 必须大于 0'); return; }
+      if (T < 600 || T > 1400) { alert('轧制温度 T 应在 600~1400°C 范围内'); return; }
+      if (eps <= 0) { alert('应变 ε 必须大于 0'); return; }
+      if (epsRate <= 0) { alert('应变速率 ε̇ 必须大于 0'); return; }
+
+      var TK = T + 273;
+      var n = 0.41 - 0.07 * C;
+      var m = (-0.019 * C + 0.126) * T / 1000 + (0.076 * C - 0.05);
+
+      // Misaka公式
+      var exponent = 0.126 - 1.75 * C + 0.594 * C * C + (2851 + 2968 * C - 1120 * C * C) / TK;
+      var kfMisaka = Math.exp(exponent) * Math.pow(eps, n) * Math.pow(epsRate, m) * 9.81;
+
+      // Shida公式
+      var fC = 1 + 1.5 * C;
+      var kfShida = 0.28 * Math.exp(5000 / TK) * fC * Math.pow(eps, n) * Math.pow(epsRate, m) * 9.81;
+
+      document.getElementById('output-placeholder').style.display = 'none';
+      document.getElementById('result-content').style.display = 'block';
+
+      document.getElementById('kfMisaka').textContent = kfMisaka.toFixed(2) + ' MPa';
+      document.getElementById('kfShida').textContent = kfShida.toFixed(2) + ' MPa';
+    }
+
+    function clearInputs() {
+      document.querySelectorAll('input[type="number"]').forEach(function(el) { el.value = ''; });
+      document.getElementById('output-placeholder').style.display = 'block';
+      document.getElementById('result-content').style.display = 'none';
+    }
+  </script>
+</body>
+</html>

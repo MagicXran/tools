@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>轧制温降计算器</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background: #f5f7fa; min-height: 100vh; padding: 20px; }
+    .container { max-width: 1200px; background: url('image/page-bg.png') no-repeat center center; background-size: cover; margin: 0 auto; padding: 20px; border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); }
+    h1 { color: #1d2129; font-size: 36px; font-weight: 700; font-family: Source Han Sans; line-height: 54px; display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 24px; }
+    .main-content { display: grid; grid-template-columns: 1fr auto 1fr; gap: 20px; align-items: start; }
+    .section-wrapper { display: flex; flex-direction: column; }
+    .section-title { font-size: 20px; font-weight: 500; font-family: medium/Headline1-Medium; color: #3d3d3d; margin-bottom: 16px; }
+    .input-section, .output-section { background: #ffffff; border: 1px solid #a7c4ff; border-radius: 8px; padding: 16px; }
+    .input-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+    .input-group { display: flex; flex-direction: column; }
+    .input-group label { margin-bottom: 6px; font-family: Alibaba PuHuiTi 2; color: #717a87; font-size: 14px; line-height: 22px; font-weight: 500; }
+    .input-group input, .input-group select { padding: 8px 12px; border: 1px solid #e6e9f4; font-family: Alibaba PuHuiTi 2; font-weight: 400; line-height: 22px; border-radius: 6px; font-size: 13px; background-color: #ffffff; color: #1d2129; transition: all 0.3s ease; }
+    .input-group input:focus, .input-group select:focus { outline: none; border-color: #4a9eff; box-shadow: 0 0 0 3px rgba(74,158,255,0.1); }
+    .input-group input::placeholder { color: #959ba5; }
+    .arrow-section { display: flex; align-items: center; justify-content: center; padding: 20px 0; }
+    .swap-button { display: flex; justify-content: center; margin: 0 20px; background: none; border: none; cursor: pointer; transition: transform 0.3s ease; padding: 5px; }
+    .swap-button img { width: 50px; height: 50px; object-fit: contain; }
+    .swap-button:hover { transform: rotate(180deg); }
+    .output-content { min-height: 230px; }
+    .output-placeholder { font-weight: 400; font-size: 14px; line-height: 22px; color: #3d3d3d; }
+    .result-item { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; }
+    .result-item:last-child { border-bottom: none; }
+    .result-label { font-family: PingFang SC; font-weight: 400; font-size: 20px; line-height: 28px; color: #717a87; }
+    .result-value { font-family: HarmonyOS Sans; font-size: 20px; line-height: 28px; font-weight: 500; color: #3d3d3d; }
+    .button-group { display: flex; gap: 16px; justify-content: center; margin: 20px 0; }
+    .btn { padding: 12px 32px; border-radius: 24px; font-size: 16px; font-weight: 600; cursor: pointer; transition: all 0.2s; border: none; }
+    .btn-primary { background: linear-gradient(135deg, #278bf3 0%, #409eff 100%); color: white; }
+    .btn-primary:hover { background: linear-gradient(135deg, #1a7ae0 0%, #3090f0 100%); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(39,139,243,0.3); }
+    .btn-secondary { background: white; color: #1d2129; border: 1px solid #278bf3; }
+    .btn-secondary:hover { background: #f0f9ff; }
+    .formula-section { background-color: #f5f5fa; display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; border-radius: 8px; padding: 4px; }
+    .formula-card { padding: 20px; }
+    .formula-title { font-family: medium/Headline3-Medium; font-weight: 500; font-size: 16px; line-height: 24px; color: #3d3d3d; margin-bottom: 12px; }
+    .formula-content { font-family: 'Courier New', monospace; font-size: 13px; color: #374151; line-height: 1.6; }
+    @media (max-width: 768px) {
+      .main-content { grid-template-columns: 1fr; gap: 20px; }
+      .arrow-section { transform: rotate(90deg); }
+      .input-grid { grid-template-columns: repeat(2, 1fr); }
+      .formula-section { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>轧制温降计算器</h1>
+    <div class="main-content">
+      <div class="section-wrapper">
+        <div class="section-title">输入</div>
+        <div class="input-section">
+          <div class="input-grid">
+            <div class="input-group">
+              <label>初始温度 T₀ (°C)</label>
+              <input type="number" id="T0" step="1" placeholder="例: 1050" min="0" value="1050" />
+            </div>
+            <div class="input-group">
+              <label>轧件厚度 h (mm)</label>
+              <input type="number" id="h" step="0.1" placeholder="例: 25" min="0" value="25" />
+            </div>
+            <div class="input-group">
+              <label>轧件宽度 b (mm)</label>
+              <input type="number" id="b" step="0.1" placeholder="例: 1200 (参考)" min="0" value="1200" />
+            </div>
+            <div class="input-group">
+              <label>空冷时间 t (s)</label>
+              <input type="number" id="t" step="0.1" placeholder="例: 8" min="0" value="8" />
+            </div>
+            <div class="input-group">
+              <label>变形抗力 K_f (MPa)</label>
+              <input type="number" id="Kf" step="0.1" placeholder="例: 150" min="0" value="150" />
+            </div>
+            <div class="input-group">
+              <label>应变 ε</label>
+              <input type="number" id="eps" step="0.01" placeholder="例: 0.3" min="0" value="0.3" />
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="arrow-section">
+        <button class="swap-button" onclick="calculate()">
+          <img src="image/transformation.png" alt="计算" />
+        </button>
+      </div>
+      <div class="section-wrapper">
+        <div class="section-title">输出（计算结果）</div>
+        <div class="output-section">
+          <div class="output-content">
+            <div id="output-placeholder" class="output-placeholder">请输入数值...</div>
+            <div id="result-content" style="display: none">
+              <div class="result-item">
+                <span class="result-label">辐射温降 ΔT_rad</span>
+                <span class="result-value" id="dT_rad">—</span>
+              </div>
+              <div class="result-item">
+                <span class="result-label">变形升温 ΔT_def</span>
+                <span class="result-value" id="dT_def">—</span>
+              </div>
+              <div class="result-item">
+                <span class="result-label">最终温度 T_final</span>
+                <span class="result-value" id="T_final">—</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="button-group">
+      <button class="btn btn-primary" onclick="calculate()">开始计算</button>
+      <button class="btn btn-secondary" onclick="clearInputs()">清除数据</button>
+    </div>
+    <div class="formula-section">
+      <div class="formula-card">
+        <div class="formula-title">计算公式</div>
+        <div class="formula-content">
+          辐射温降（Stefan-Boltzmann）：<br>
+          ΔT_rad = σ·ε_r·(T₀⁴-T_env⁴)·t / (ρ·c·h/2)<br><br>
+          变形升温：<br>
+          ΔT_def = η·K_f·10⁶·ε / (ρ·c)<br><br>
+          最终温度：<br>
+          T_final = T₀ - ΔT_rad + ΔT_def
+        </div>
+      </div>
+      <div class="formula-card">
+        <div class="formula-title">参数说明</div>
+        <div class="formula-content">
+          σ = 5.67×10⁻⁸ W/(m²·K⁴) — Stefan-Boltzmann 常数<br><br>
+          ε_r ≈ 0.8 — 钢的辐射率<br><br>
+          ρ ≈ 7800 kg/m³ — 钢的密度<br><br>
+          c ≈ 600 J/(kg·°C) — 比热容<br><br>
+          η ≈ 0.9 — 机械功转热效率
+        </div>
+      </div>
+      <div class="formula-card">
+        <div class="formula-title">应用场景</div>
+        <div class="formula-content">
+          热轧温度控制 — 预测道次间温度变化<br><br>
+          终轧温度预测 — 确保终轧温度满足工艺要求<br><br>
+          道次间温降估算 — 优化轧制节奏与冷却策略
+        </div>
+      </div>
+    </div>
+  </div>
+  <script>
+    function calculate() {
+      var T0 = parseFloat(document.getElementById('T0').value);
+      var h = parseFloat(document.getElementById('h').value);
+      var t = parseFloat(document.getElementById('t').value);
+      var Kf = parseFloat(document.getElementById('Kf').value);
+      var eps = parseFloat(document.getElementById('eps').value);
+
+      if (isNaN(T0) || isNaN(h) || isNaN(t) || isNaN(Kf) || isNaN(eps)) {
+        alert('请填写必要的输入参数（宽度 b 为参考值，可选填）'); return;
+      }
+      if (T0 <= 0) { alert('初始温度 T₀ 必须大于 0'); return; }
+      if (h <= 0) { alert('轧件厚度 h 必须大于 0'); return; }
+      if (t < 0) { alert('空冷时间 t 不能为负值'); return; }
+      if (Kf <= 0) { alert('变形抗力 K_f 必须大于 0'); return; }
+      if (eps <= 0) { alert('应变 ε 必须大于 0'); return; }
+
+      // 常数
+      var sigma = 5.67e-8;   // Stefan-Boltzmann 常数 W/(m²·K⁴)
+      var eps_r = 0.8;       // 辐射率
+      var rho = 7800;        // 钢密度 kg/m³
+      var c = 600;           // 比热容 J/(kg·°C)
+      var T_env = 25;        // 环境温度 °C
+      var eta = 0.9;         // 机械功转热效率
+
+      // 单位转换
+      var T0_K = T0 + 273.15;
+      var T_env_K = T_env + 273.15;
+      var h_m = h / 1000;    // mm -> m
+
+      // 辐射温降
+      var dT_rad = sigma * eps_r * (Math.pow(T0_K, 4) - Math.pow(T_env_K, 4)) * t / (rho * c * h_m / 2);
+
+      // 变形升温
+      var dT_def = eta * Kf * 1e6 * eps / (rho * c);
+
+      // 最终温度
+      var T_final = T0 - dT_rad + dT_def;
+
+      document.getElementById('output-placeholder').style.display = 'none';
+      document.getElementById('result-content').style.display = 'block';
+
+      document.getElementById('dT_rad').textContent = dT_rad.toFixed(2) + ' °C';
+      document.getElementById('dT_def').textContent = dT_def.toFixed(2) + ' °C';
+      document.getElementById('T_final').textContent = T_final.toFixed(2) + ' °C';
+    }
+
+    function clearInputs() {
+      document.querySelectorAll('input[type="number"]').forEach(function(el) { el.value = ''; });
+      document.getElementById('output-placeholder').style.display = 'block';
+      document.getElementById('result-content').style.display = 'none';
+    }
+  </script>
+</body>
+</html>

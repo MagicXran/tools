@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>热膨胀/冷缩量计算器</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background: #f5f7fa; min-height: 100vh; padding: 20px; }
+    .container { max-width: 1200px; background: url('image/page-bg.png') no-repeat center center; background-size: cover; margin: 0 auto; padding: 20px; border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); }
+    h1 { color: #1d2129; font-size: 36px; font-weight: 700; font-family: Source Han Sans; line-height: 54px; display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 24px; }
+    .main-content { display: grid; grid-template-columns: 1fr auto 1fr; gap: 20px; align-items: start; }
+    .section-wrapper { display: flex; flex-direction: column; }
+    .section-title { font-size: 20px; font-weight: 500; font-family: medium/Headline1-Medium; color: #3d3d3d; margin-bottom: 16px; }
+    .input-section, .output-section { background: #ffffff; border: 1px solid #a7c4ff; border-radius: 8px; padding: 16px; }
+    .input-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+    .input-group { display: flex; flex-direction: column; }
+    .input-group label { margin-bottom: 6px; font-family: Alibaba PuHuiTi 2; color: #717a87; font-size: 14px; line-height: 22px; font-weight: 500; }
+    .input-group input, .input-group select { padding: 8px 12px; border: 1px solid #e6e9f4; font-family: Alibaba PuHuiTi 2; font-weight: 400; line-height: 22px; border-radius: 6px; font-size: 13px; background-color: #ffffff; color: #1d2129; transition: all 0.3s ease; }
+    .input-group input:focus, .input-group select:focus { outline: none; border-color: #4a9eff; box-shadow: 0 0 0 3px rgba(74,158,255,0.1); }
+    .input-group input::placeholder { color: #959ba5; }
+    .arrow-section { display: flex; align-items: center; justify-content: center; padding: 20px 0; }
+    .swap-button { display: flex; justify-content: center; margin: 0 20px; background: none; border: none; cursor: pointer; transition: transform 0.3s ease; padding: 5px; }
+    .swap-button img { width: 50px; height: 50px; object-fit: contain; }
+    .swap-button:hover { transform: rotate(180deg); }
+    .output-content { min-height: 230px; }
+    .output-placeholder { font-weight: 400; font-size: 14px; line-height: 22px; color: #3d3d3d; }
+    .result-item { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; }
+    .result-item:last-child { border-bottom: none; }
+    .result-label { font-family: PingFang SC; font-weight: 400; font-size: 20px; line-height: 28px; color: #717a87; }
+    .result-value { font-family: HarmonyOS Sans; font-size: 20px; line-height: 28px; font-weight: 500; color: #3d3d3d; }
+    .button-group { display: flex; gap: 16px; justify-content: center; margin: 20px 0; }
+    .btn { padding: 12px 32px; border-radius: 24px; font-size: 16px; font-weight: 600; cursor: pointer; transition: all 0.2s; border: none; }
+    .btn-primary { background: linear-gradient(135deg, #278bf3 0%, #409eff 100%); color: white; }
+    .btn-primary:hover { background: linear-gradient(135deg, #1a7ae0 0%, #3090f0 100%); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(39,139,243,0.3); }
+    .btn-secondary { background: white; color: #1d2129; border: 1px solid #278bf3; }
+    .btn-secondary:hover { background: #f0f9ff; }
+    .formula-section { background-color: #f5f5fa; display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; border-radius: 8px; padding: 4px; }
+    .formula-card { padding: 20px; }
+    .formula-title { font-family: medium/Headline3-Medium; font-weight: 500; font-size: 16px; line-height: 24px; color: #3d3d3d; margin-bottom: 12px; }
+    .formula-content { font-family: 'Courier New', monospace; font-size: 13px; color: #374151; line-height: 1.6; }
+    @media (max-width: 768px) {
+      .main-content { grid-template-columns: 1fr; gap: 20px; }
+      .arrow-section { transform: rotate(90deg); }
+      .input-grid { grid-template-columns: 1fr; }
+      .formula-section { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>热膨胀/冷缩量计算器</h1>
+    <div class="main-content">
+      <div class="section-wrapper">
+        <div class="section-title">输入</div>
+        <div class="input-section">
+          <div class="input-grid">
+            <div class="input-group">
+              <label>热态尺寸 L_hot (mm)</label>
+              <input type="number" id="Lhot" step="0.01" placeholder="例: 1000" min="0" value="1000" />
+            </div>
+            <div class="input-group">
+              <label>热态温度 T_hot (°C)</label>
+              <input type="number" id="Thot" step="1" placeholder="例: 900" value="900" />
+            </div>
+            <div class="input-group">
+              <label>冷态温度 T_cold (°C)</label>
+              <input type="number" id="Tcold" step="1" placeholder="默认: 20" value="20" />
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="arrow-section">
+        <button class="swap-button" onclick="calculate()">
+          <img src="image/transformation.png" alt="计算" />
+        </button>
+      </div>
+      <div class="section-wrapper">
+        <div class="section-title">输出（计算结果）</div>
+        <div class="output-section">
+          <div class="output-content">
+            <div id="output-placeholder" class="output-placeholder">请输入数值...</div>
+            <div id="result-content" style="display: none">
+              <div class="result-item">
+                <span class="result-label">冷态尺寸 L_cold</span>
+                <span class="result-value" id="Lcold">—</span>
+              </div>
+              <div class="result-item">
+                <span class="result-label">收缩量 ΔL</span>
+                <span class="result-value" id="deltaL">—</span>
+              </div>
+              <div class="result-item">
+                <span class="result-label">收缩率</span>
+                <span class="result-value" id="shrinkRate">—</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="button-group">
+      <button class="btn btn-primary" onclick="calculate()">开始计算</button>
+      <button class="btn btn-secondary" onclick="clearInputs()">清除数据</button>
+    </div>
+    <div class="formula-section">
+      <div class="formula-card">
+        <div class="formula-title">计算公式</div>
+        <div class="formula-content">
+          L_cold = L_hot / (1 + α × (T_hot − T_cold))<br><br>
+          ΔL = L_hot − L_cold<br><br>
+          收缩率 = ΔL / L_hot × 100%<br><br>
+          其中 α ≈ 12.5×10⁻⁶ /°C（钢的线膨胀系数）
+        </div>
+      </div>
+      <div class="formula-card">
+        <div class="formula-title">参数说明</div>
+        <div class="formula-content">
+          α — 钢的平均线膨胀系数，实际随温度和钢种略有差异（低碳钢约 11.7~13.0×10⁻⁶/°C）<br><br>
+          T_cold — 通常取室温 20°C<br><br>
+          T_hot — 热态测量时的温度，必须高于 T_cold
+        </div>
+      </div>
+      <div class="formula-card">
+        <div class="formula-title">应用场景</div>
+        <div class="formula-content">
+          热轧成品尺寸精度控制 — 从热态尺寸推算冷态尺寸<br><br>
+          轧辊辊型设计 — 考虑热膨胀补偿<br><br>
+          连铸坯/铸件冷缩量估算
+        </div>
+      </div>
+    </div>
+  </div>
+  <script>
+    function calculate() {
+      var Lhot = parseFloat(document.getElementById('Lhot').value);
+      var Thot = parseFloat(document.getElementById('Thot').value);
+      var Tcold = parseFloat(document.getElementById('Tcold').value);
+
+      if (isNaN(Lhot) || isNaN(Thot) || isNaN(Tcold)) {
+        alert('请填写所有输入参数'); return;
+      }
+      if (Lhot <= 0) { alert('热态尺寸 L_hot 必须大于 0'); return; }
+      if (Thot <= Tcold) { alert('热态温度 T_hot 必须高于冷态温度 T_cold'); return; }
+
+      var alpha = 12.5e-6;
+      var Lcold = Lhot / (1 + alpha * (Thot - Tcold));
+      var deltaL = Lhot - Lcold;
+      var rate = (deltaL / Lhot) * 100;
+
+      document.getElementById('output-placeholder').style.display = 'none';
+      document.getElementById('result-content').style.display = 'block';
+
+      document.getElementById('Lcold').textContent = Lcold.toFixed(3) + ' mm';
+      document.getElementById('deltaL').textContent = deltaL.toFixed(3) + ' mm';
+      document.getElementById('shrinkRate').textContent = rate.toFixed(4) + ' %';
+    }
+
+    function clearInputs() {
+      document.getElementById('Lhot').value = '';
+      document.getElementById('Thot').value = '';
+      document.getElementById('Tcold').value = '20';
+      document.getElementById('output-placeholder').style.display = 'block';
+      document.getElementById('result-content').style.display = 'none';
+    }
+  </script>
+</body>
+</html>

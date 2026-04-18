@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>咬入条件计算器</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background: #f5f7fa; min-height: 100vh; padding: 20px; }
+    .container { max-width: 1200px; background: url('image/page-bg.png') no-repeat center center; background-size: cover; margin: 0 auto; padding: 20px; border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); }
+    h1 { color: #1d2129; font-size: 36px; font-weight: 700; font-family: Source Han Sans; line-height: 54px; display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 24px; }
+    .main-content { display: grid; grid-template-columns: 1fr auto 1fr; gap: 20px; align-items: start; }
+    .section-wrapper { display: flex; flex-direction: column; }
+    .section-title { font-size: 20px; font-weight: 500; font-family: medium/Headline1-Medium; color: #3d3d3d; margin-bottom: 16px; }
+    .input-section, .output-section { background: #ffffff; border: 1px solid #a7c4ff; border-radius: 8px; padding: 16px; }
+    .input-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+    .input-group { display: flex; flex-direction: column; }
+    .input-group label { margin-bottom: 6px; font-family: Alibaba PuHuiTi 2; color: #717a87; font-size: 14px; line-height: 22px; font-weight: 500; }
+    .input-group input, .input-group select { padding: 8px 12px; border: 1px solid #e6e9f4; font-family: Alibaba PuHuiTi 2; font-weight: 400; line-height: 22px; border-radius: 6px; font-size: 13px; background-color: #ffffff; color: #1d2129; transition: all 0.3s ease; }
+    .input-group input:focus, .input-group select:focus { outline: none; border-color: #4a9eff; box-shadow: 0 0 0 3px rgba(74,158,255,0.1); }
+    .input-group input::placeholder { color: #959ba5; }
+    .input-group input:disabled { opacity: 0.35; cursor: not-allowed; }
+    .arrow-section { display: flex; align-items: center; justify-content: center; padding: 20px 0; }
+    .swap-button { display: flex; justify-content: center; margin: 0 20px; background: none; border: none; cursor: pointer; transition: transform 0.3s ease; padding: 5px; }
+    .swap-button img { width: 50px; height: 50px; object-fit: contain; }
+    .swap-button:hover { transform: rotate(180deg); }
+    .output-content { min-height: 230px; }
+    .output-placeholder { font-weight: 400; font-size: 14px; line-height: 22px; color: #3d3d3d; }
+    .result-item { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; }
+    .result-item:last-child { border-bottom: none; }
+    .result-label { font-family: PingFang SC; font-weight: 400; font-size: 20px; line-height: 28px; color: #717a87; }
+    .result-value { font-family: HarmonyOS Sans; font-size: 20px; line-height: 28px; font-weight: 500; color: #3d3d3d; }
+    .button-group { display: flex; gap: 16px; justify-content: center; margin: 20px 0; }
+    .btn { padding: 12px 32px; border-radius: 24px; font-size: 16px; font-weight: 600; cursor: pointer; transition: all 0.2s; border: none; }
+    .btn-primary { background: linear-gradient(135deg, #278bf3 0%, #409eff 100%); color: white; }
+    .btn-primary:hover { background: linear-gradient(135deg, #1a7ae0 0%, #3090f0 100%); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(39,139,243,0.3); }
+    .btn-secondary { background: white; color: #1d2129; border: 1px solid #278bf3; }
+    .btn-secondary:hover { background: #f0f9ff; }
+    .formula-section { background-color: #f5f5fa; display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; border-radius: 8px; padding: 4px; }
+    .formula-card { padding: 20px; }
+    .formula-title { font-family: medium/Headline3-Medium; font-weight: 500; font-size: 16px; line-height: 24px; color: #3d3d3d; margin-bottom: 12px; }
+    .formula-content { font-family: 'Courier New', monospace; font-size: 13px; color: #374151; line-height: 1.6; }
+    @media (max-width: 768px) {
+      .main-content { grid-template-columns: 1fr; gap: 20px; }
+      .arrow-section { transform: rotate(90deg); }
+      .input-grid { grid-template-columns: repeat(2, 1fr); }
+      .formula-section { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>咬入条件计算器</h1>
+    <div class="main-content">
+      <div class="section-wrapper">
+        <div class="section-title">输入</div>
+        <div class="input-section">
+          <div class="input-grid">
+            <div class="input-group">
+              <label>工作辊径 R (mm)</label>
+              <input type="number" id="R" step="1" placeholder="例: 450" min="0" value="450" />
+            </div>
+            <div class="input-group">
+              <label>压下量 Δh (mm)</label>
+              <input type="number" id="dh" step="0.1" placeholder="例: 8" min="0" value="8" />
+            </div>
+            <div class="input-group">
+              <label>摩擦系数来源</label>
+              <select id="frictionSource" onchange="toggleFrictionSource()">
+                <option value="manual">手动输入</option>
+                <option value="auto">按温度计算</option>
+              </select>
+            </div>
+            <div class="input-group" id="muGroup">
+              <label>摩擦系数 μ</label>
+              <input type="number" id="mu" step="0.01" placeholder="例: 0.35" min="0" value="0.35" />
+            </div>
+            <div class="input-group" id="tempGroup" style="display: none">
+              <label>轧制温度 T (°C)</label>
+              <input type="number" id="biteTemp" step="1" placeholder="例: 1000" min="0" value="1000" />
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="arrow-section">
+        <button class="swap-button" onclick="calculate()">
+          <img src="image/transformation.png" alt="计算" />
+        </button>
+      </div>
+      <div class="section-wrapper">
+        <div class="section-title">输出（计算结果）</div>
+        <div class="output-section">
+          <div class="output-content">
+            <div id="output-placeholder" class="output-placeholder">请输入数值...</div>
+            <div id="result-content" style="display: none">
+              <div class="result-item">
+                <span class="result-label">咬入角 α</span>
+                <span class="result-value" id="biteAngle">—</span>
+              </div>
+              <div class="result-item">
+                <span class="result-label">摩擦角（最大允许咬入角）β</span>
+                <span class="result-value" id="frictionAngle">—</span>
+              </div>
+              <div class="result-item">
+                <span class="result-label">最大允许压下量 Δh_max</span>
+                <span class="result-value" id="maxReduction">—</span>
+              </div>
+              <div class="result-item">
+                <span class="result-label">咬入条件判定</span>
+                <span class="result-value" id="biteJudge">—</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="button-group">
+      <button class="btn btn-primary" onclick="calculate()">开始计算</button>
+      <button class="btn btn-secondary" onclick="clearInputs()">清除数据</button>
+    </div>
+    <div class="formula-section">
+      <div class="formula-card">
+        <div class="formula-title">计算公式</div>
+        <div class="formula-content">
+          咬入角：<br>
+          α = arccos(1 - Δh/(2R))<br><br>
+          摩擦角（最大允许咬入角）：<br>
+          β = arctan(μ)<br><br>
+          最大允许压下量：<br>
+          Δh_max = 2R × (1 - cosβ)<br><br>
+          咬入条件：α ≤ β<br><br>
+          温度计算摩擦系数：<br>
+          μ = 0.8 × (1.05 - 0.0005×T)
+        </div>
+      </div>
+      <div class="formula-card">
+        <div class="formula-title">参数说明</div>
+        <div class="formula-content">
+          R — 工作辊半径（mm）<br><br>
+          Δh — 压下量（mm），轧制前后厚度差<br><br>
+          μ — 摩擦系数，热轧一般 0.25~0.45<br><br>
+          热轧经验公式：μ = 0.8(1.05-0.0005T)<br><br>
+          α — 咬入角，轧件与轧辊接触弧对应的圆心角<br><br>
+          β — 摩擦角，由摩擦系数决定的最大允许咬入角
+        </div>
+      </div>
+      <div class="formula-card">
+        <div class="formula-title">应用场景</div>
+        <div class="formula-content">
+          新产品开发 — 极限规格的咬入可行性校核<br><br>
+          轧辊辊径选择 — 辊径与最大压下量的匹配依据<br><br>
+          压下规程验证 — 各道次压下量是否满足咬入条件<br><br>
+          润滑工艺评估 — 润滑剂对咬入能力的影响分析
+        </div>
+      </div>
+    </div>
+  </div>
+  <script>
+    function toggleFrictionSource() {
+      var source = document.getElementById('frictionSource').value;
+      var muGroup = document.getElementById('muGroup');
+      var tempGroup = document.getElementById('tempGroup');
+
+      if (source === 'auto') {
+        muGroup.style.display = 'none';
+        document.getElementById('mu').value = '';
+        tempGroup.style.display = 'flex';
+      } else {
+        muGroup.style.display = 'flex';
+        tempGroup.style.display = 'none';
+        document.getElementById('biteTemp').value = '';
+      }
+    }
+
+    function calculate() {
+      var R = parseFloat(document.getElementById('R').value);
+      var dh = parseFloat(document.getElementById('dh').value);
+      var source = document.getElementById('frictionSource').value;
+      var mu;
+
+      if (isNaN(R) || R <= 0) { alert('工作辊径 R 必须大于 0'); return; }
+      if (isNaN(dh) || dh <= 0) { alert('压下量 Δh 必须大于 0'); return; }
+      if (dh >= 2 * R) { alert('压下量 Δh 必须小于 2R（辊径）'); return; }
+
+      if (source === 'auto') {
+        var T = parseFloat(document.getElementById('biteTemp').value);
+        if (isNaN(T) || T <= 0) { alert('请输入有效的轧制温度'); return; }
+        mu = 0.8 * (1.05 - 0.0005 * T);
+        if (mu <= 0) { alert('计算得到的摩擦系数 ≤ 0，温度过高（T 应 < 2100°C）'); return; }
+      } else {
+        mu = parseFloat(document.getElementById('mu').value);
+        if (isNaN(mu) || mu <= 0) { alert('摩擦系数 μ 必须大于 0'); return; }
+      }
+
+      // 咬入角
+      var cosAlpha = 1 - dh / (2 * R);
+      var alpha = Math.acos(cosAlpha);
+      var alphaDeg = alpha * 180 / Math.PI;
+
+      // 摩擦角
+      var beta = Math.atan(mu);
+      var betaDeg = beta * 180 / Math.PI;
+
+      // 最大允许压下量
+      var dhMax = 2 * R * (1 - Math.cos(beta));
+
+      // 判定
+      var pass = alpha <= beta;
+
+      document.getElementById('output-placeholder').style.display = 'none';
+      document.getElementById('result-content').style.display = 'block';
+
+      document.getElementById('biteAngle').textContent = alphaDeg.toFixed(3) + '°';
+      document.getElementById('frictionAngle').textContent = betaDeg.toFixed(3) + '°';
+      document.getElementById('maxReduction').textContent = dhMax.toFixed(3) + ' mm';
+
+      var judgeEl = document.getElementById('biteJudge');
+      if (pass) {
+        judgeEl.textContent = '\u2705 满足咬入条件';
+        judgeEl.style.color = '#10b981';
+      } else {
+        judgeEl.textContent = '\u274C 不满足咬入条件';
+        judgeEl.style.color = '#ef4444';
+      }
+    }
+
+    function clearInputs() {
+      document.querySelectorAll('input[type="number"]').forEach(function(el) { el.value = ''; });
+      document.getElementById('frictionSource').value = 'manual';
+      toggleFrictionSource();
+      document.getElementById('output-placeholder').style.display = 'block';
+      document.getElementById('result-content').style.display = 'none';
+      var judgeEl = document.getElementById('biteJudge');
+      judgeEl.textContent = '\u2014';
+      judgeEl.style.color = '#3d3d3d';
+    }
+  </script>
+</body>
+</html>
